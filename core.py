@@ -8,7 +8,7 @@ from aiogram.utils.helper import Helper, HelperMode, ListItem
 import config
 
 
-class TestStates(Helper):
+class States(Helper):
     mode = HelperMode.snake_case
 
     MENU = ListItem()
