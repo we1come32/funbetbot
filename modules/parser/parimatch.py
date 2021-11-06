@@ -70,8 +70,8 @@ class PariMatchLoader(ABCParseLoader):
             # Выдергиваем название игры из 'name'
             gameName = name.split('.')[0]
             # Теперь проверяем на существование такой игры
-            if game := gamesData.get(gameName, None) is None:
-                gamesData[gameName] = game = {}
+            if gamesData.get(gameName, None) is None:
+                gamesData[gameName] = {}
             # Получаем название турнира
             tournamentName = name[len(gameName) + 2:]
             # Проверяем на повторение турнира чтобы дважды инфу не добавлять в данные об играх
