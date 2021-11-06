@@ -1,4 +1,4 @@
-venv
+/venv
 config.py
 test.py
 geckodriver.exe
