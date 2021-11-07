@@ -23,6 +23,7 @@
 3) Скачать репозиторий `git clone git+/github.com/we1come32/funbetbot`
 4) Установить зависимости `pip3 install -r requirements.txt` 
 (для Windows `pip install -r requirements.txt`)
-5) `python3 main.py` (для Windows `python main.py`)
+5) В `config.py` 
+6) `python3 main.py` (для Windows `python main.py`)
 
 ---
