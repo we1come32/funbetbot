@@ -1,5 +1,3 @@
-import asyncio
-
 from loguru import logger
 import sqlalchemy as sa
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -39,4 +37,3 @@ def setup():
     logger.debug(f"Таблицы базы данных созданы")
     BaseModel.set_session(session)
     logger.debug(f"База данных настроена и готова работать")
-

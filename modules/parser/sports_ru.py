@@ -12,7 +12,7 @@ async def parse(url: str) -> dict[str, list]:
             try:
                 soup.find('div', class_='match-center').find('div', class_='tabs-container')
                 better_flag = False
-            except Exception as e:
+            except IndexError:
                 better_flag = True
             data = {}
             loguru.logger.debug(f"Начинаю парсить {url!r}")
@@ -21,9 +21,10 @@ async def parse(url: str) -> dict[str, list]:
                 for tournament in tournaments:
                     try:
                         tournamentName = tournament.find('a', class_='desktop-teaser__tournament').text[1:]
-                    except:
+                    except IndexError:
                         continue
-                    matches = tournament.find('div', class_='delimited-match-list').find_all('div', class_='match-teaser')
+                    matches = tournament.find('div', class_='delimited-match-list')\
+                        .find_all('div', class_='match-teaser')
                     data[tournamentName] = []
                     for match in matches:
                         link: str = match.find('a', class_='match-teaser__link').attrs.get('href')
@@ -49,7 +50,10 @@ async def parse(url: str) -> dict[str, list]:
                                 int(_.text)
                                 for _ in match.find('div', class_='match-teaser__team-score').find_all('span')[::2]
                             ]
-                            data[tournamentName][-1]['result'] = {team[1:-1]: value for team, value in zip(teams, result)}
+                            data[tournamentName][-1]['result'] = {
+                                team[1:-1]: value
+                                for team, value in zip(teams, result)
+                            }
                     break
             else:
                 tournaments = soup.find('div', class_='match-center').find('li', class_='panel')
@@ -58,7 +62,7 @@ async def parse(url: str) -> dict[str, list]:
                 for tournamentNameElement, tournamentGamesTable in zip(tournamentNames, tournamentGames):
                     try:
                         tournamentName = tournamentNameElement.find('a').text
-                    except:
+                    except IndexError:
                         continue
                     data[tournamentName] = []
                     tournamentGamesInformation = tournamentGamesTable.find_all('tr')

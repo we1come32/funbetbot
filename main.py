@@ -3,10 +3,9 @@ import json
 import loguru
 from pprint import pprint
 from aiogram import types
-from aiogram.types import Message, ContentTypes, InlineKeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import Message, InlineKeyboardButton, ReplyKeyboardMarkup
 from aiogram.dispatcher import filters
 
-import utils.filters
 from utils.decorators import FixParameterTypes, Timer, SpecialTypesOfUsers
 
 from core import dp, run, bot, States
@@ -44,9 +43,9 @@ async def get_bet(msg: Message):
     state = dp.current_state(user=msg.from_user.id)
     await state.set_state('types')
     kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    categories = ['']
+    # categories = ['']
     kb.row(InlineKeyboardButton('Баланс'))
-    await msg.answer()
+    await msg.answer("А ок ща")
 
 if __name__ == "__main__":
     run()
