@@ -3,3 +3,4 @@ config.py
 test.py
 geckodriver.exe
 geckodriver.log
+db.sqlite

@@ -23,7 +23,8 @@
 3) Скачать репозиторий `git clone git+/github.com/we1come32/funbetbot`
 4) Установить зависимости `pip3 install -r requirements.txt` 
 (для Windows `pip install -r requirements.txt`)
-5) В `config.py` 
-6) `python3 main.py` (для Windows `python main.py`)
+5) Создать своего бота у <a href="https://t.me/botfather">@BotFather</a>, получить ключ доступа бота
+6) Вставить ключ доступа в `config.py` в переменную `ACCESS_TOKEN`
+7) `python3 main.py` (для Windows `python main.py`)
 
 ---
