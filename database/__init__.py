@@ -1,12 +1,11 @@
 import asyncio
 
-import loguru
+from loguru import logger
 import sqlalchemy as sa
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_mixins import AllFeaturesMixin
 from sqlalchemy_mixins.timestamp import TimestampsMixin
-from loguru import logger
 
 import config
 
