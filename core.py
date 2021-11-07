@@ -7,6 +7,8 @@ from aiogram.utils.helper import Helper, HelperMode, ListItem
 
 import config
 
+from modules import database
+
 
 class States(Helper):
     mode = HelperMode.snake_case
@@ -29,4 +31,5 @@ dp.middleware.setup(LoggingMiddleware())
 
 
 def run():
+    database.setup()
     aiogram.executor.start_polling(dp)
