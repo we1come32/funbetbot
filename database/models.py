@@ -62,7 +62,7 @@ class Team(BaseModel):
     name = sa.Column(sa.String(20), default='')
     subcategory = sa.Column(sa.ForeignKey('bet_events.id'))
     value = sa.Column(sa.Float, default=1.0)
-    start_time = sa.Column(sa.Time, default=lambda f: datetime.datetime.now())
+    start_time = sa.Column(sa.Time, default=datetime.datetime.now)
     bets = sa.orm.relationship('Bet')
 
 
