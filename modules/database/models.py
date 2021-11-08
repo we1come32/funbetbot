@@ -13,6 +13,8 @@ class TGUser(BaseModel):
     id = sa.Column(sa.Integer, primary_key=True)
     status = sa.Column(sa.Integer, default=0)
     balance = sa.Column(sa.Integer, default=1000)
+    language = sa.Column(sa.String(length=2), default='en')
+    tg_language = sa.Column(sa.String(length=2), default='en')
 
 
 class Category(BaseModel):
