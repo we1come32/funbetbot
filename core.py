@@ -5,16 +5,17 @@ import loguru
 import aiogram
 from aiogram import types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.utils.helper import Helper, HelperMode, ListItem
-from pprint import pprint
-from aiogram.types import Message, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.dispatcher import filters
+from aiogram.types import Message, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, \
+    ForceReply
+from aiogram.dispatcher import filters, FSMContext
 
-from utils.decorators import FixParameterTypes, Timer, SpecialTypesOfUsers
+from utils.decorators import FixParameterTypes, Timer, SpecialTypesOfUsers, RegisterMessageUser
+from utils.logger import LoggerMiddleware
 
 import config
 from modules import database
+from modules.database import models
 
 
 class States(Helper):
@@ -30,56 +31,115 @@ class States(Helper):
 
 loop = asyncio.get_event_loop()
 
-bot = aiogram.Bot(token=config.ACCESS_TOKEN, loop=loop)
+bot = aiogram.Bot(token=config.ACCESS_TOKEN, loop=loop, connections_limit=6)
 
 dp = aiogram.Dispatcher(bot, storage=MemoryStorage())
-dp.middleware.setup(LoggingMiddleware())
+dp.middleware.setup(LoggerMiddleware())
+RegisterMessageUser.set_dispatcher(dp)
 
-menuKeyboard = InlineKeyboardMarkup(row_width=2)
-menuKeyboard.add(InlineKeyboardButton(text='Баланс', callback_data="profile.balance"))
-menuKeyboard.add(InlineKeyboardButton(text='Сделать ставку', callback_data="bet.set"))
-menuKeyboard.add(InlineKeyboardButton(text='Рейтинг', callback_data="rating"))
-menuKeyboard.add(InlineKeyboardButton(text='Настройки', callback_data="profile.settings"))
+menuKeyboard = InlineKeyboardMarkup(row_width=2, resize_keyboard=True)
+menuKeyboard.add(InlineKeyboardButton(text='Баланс', callback_data='commands.player.balance'))
+menuKeyboard.add(InlineKeyboardButton(text='Сделать ставку', callback_data='commands.bet'))
+menuKeyboard.add(InlineKeyboardButton(text='Рейтинг', callback_data='commands.rating'))
+menuKeyboard.add(InlineKeyboardButton(text='Настройки', callback_data='commands.player.settings'))
 
 
 @dp.message_handler(commands=['start'])
-@Timer()
 @FixParameterTypes(Message)
 @SpecialTypesOfUsers(user=True)
 async def start_function(msg: Message):
-    pprint(json.loads(msg.as_json()))
-    await msg.answer('Привет, как жизнь друк?')
+    kb = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    kb.add(KeyboardButton("Меню"))
+    kb.add(InlineKeyboardButton("Сделать ставку"))
+    if models.TGUser.where(id=msg.from_user.id).count() == 0:
+        user = models.TGUser.create(id=msg.from_user.id)
+        user.save()
+        await msg.answer(
+            'Добро пожаловать!\n\nЯ бот, принимающий ставки на спорт.\nСтавить можно только мою валюту - "Вирт". '
+            '\nДля старта я дам тебе 1000 Вирт, дальше уже сам. Сделай свою первую ставку, только не ошибись, '
+            'валюта не бесконечная.',
+            reply_markup=kb
+        )
+    else:
+        await msg.answer(
+            'Ты уже зарегистрирован в моей системе, с возвращением!\n\nС удовольствием приму твою ставку на спорт',
+            reply_markup=kb
+        )
 
 
+@dp.message_handler(filters.Text(equals=['меню', 'menu'], ignore_case=True), state='*')
 @dp.message_handler(commands=['menu', 'меню'], state='*')
-@Timer()
 @FixParameterTypes(Message)
-@SpecialTypesOfUsers(user=True)
-async def menu(msg: Message):
+@RegisterMessageUser
+async def menu(msg: Message, user: models.TGUser, state: FSMContext):
     global menuKeyboard
-    state = dp.current_state(user=msg.from_user.id)
     await state.set_state('menu')
     await msg.answer('Жду вашей ставки', reply_markup=menuKeyboard)
 
 
-@dp.callback_query_handler(text="profile.balance")
-async def send_random_value(call: types.CallbackQuery):
-    global menuKeyboard
-    await call.message.edit_text(text='Баланс: 1', reply_markup=menuKeyboard)
+@dp.message_handler(filters.Text(equals=['баланс', 'balance'], ignore_case=True), state='*')
+@RegisterMessageUser
+async def balance(user: models.TGUser, state: FSMContext, msg: Message = None, message_id: int = None):
+    kb = InlineKeyboardMarkup()
+    kb.add(InlineKeyboardButton('Сделать ставку', callback_data='commands.bet'))
+    await bot.send_message(user.id, f"Ваш баланс: {user.balance} Вирт", reply_markup=kb)
+
+
+@dp.message_handler(filters.Text(equals=['rating', 'рейтинг'], ignore_case=True), state='*')
+@RegisterMessageUser
+async def rating(user: models.TGUser, state: FSMContext, msg: Message = None, message_id: int = None):
+    message = "Рейтинг игроков:\n"
+    users: list[models.TGUser] = models.TGUser.where().order_by('balance').all()
+    flag = True
+    for number, _ in enumerate(users[:10]):
+        _user = await bot.get_chat(_.id)
+        _user = _user.values.get('username', f'user{_.id}')
+        if _.id == user.id:
+            flag = False
+        message += f"\n{number+1}) {_user}"
+    if flag:
+        message += f"\n\nВаше место в рейтинге - {1 + users.index(user)}"
+    await bot.send_message(user.id, message, reply_markup=menuKeyboard)
 
 
 @dp.message_handler(commands=['get_id'])
-async def get_id(msg: Message):
+@RegisterMessageUser
+async def get_id(msg: Message, **kwargs):
     await msg.answer("Your id: {user_id}".format(user_id=msg.from_user.id))
 
 
+@dp.message_handler(commands=['get_state'])
+@RegisterMessageUser
+async def get_id(msg: Message, **kwargs):
+    state = dp.current_state(user=msg.from_user.id)
+    await msg.answer("Your state: {state}".format(state=await state.get_state()))
+
+
 @dp.message_handler(filters.Text(equals=['сделать ставку'], ignore_case=True), state=0)
-async def get_bet(msg: Message):
+@RegisterMessageUser
+async def get_bet(msg: Message, user: models.TGUser, state: FSMContext):
     state = dp.current_state(user=msg.from_user.id)
     await state.set_state('types')
     kb = InlineKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     kb.row(KeyboardButton('Баланс'))
     await msg.answer("А ок ща")
+
+
+@dp.callback_query_handler()
+async def callback_function(call: types.CallbackQuery):
+    loguru.logger.debug(f"Data: {call.data!r}")
+    data = call.data.split('.')
+    await bot.answer_callback_query(call.id)
+    if data[0] == 'commands':
+        if data[1] == 'player':
+            if data[2] == 'balance':
+                return await balance(call)
+        elif data[1] == 'rating':
+            return await rating(call)
+    await bot.send_message(
+        call.from_user.id,
+        text=f'Извини, я не нашел зарегистрированную функцию, отвечающую за callback-data={call.data!r}'
+    )
 
 
 def run():
