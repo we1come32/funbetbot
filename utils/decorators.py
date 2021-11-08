@@ -2,21 +2,35 @@ import functools
 import time
 
 import loguru
+from aiogram import Dispatcher
 from aiogram.types import Message
 
 from .cache import Cache
+from modules.database.models import TGUser
 
 
-class Register_User:
+class RegisterMessageUser:
     _fun: None
     _cache: Cache
+    _dp: Dispatcher
+
+    @classmethod
+    def set_dispatcher(cls, dp: Dispatcher):
+        cls._dp = dp
+        return True
 
     def __init__(self, function):
         self._fun = function
         self._cache = Cache('user_state')
 
-    def __call__(self, msg: Message):
-        return self._fun(user=msg.chat.id, chat=msg.chat, message=msg)
+    async def __call__(self, msg: Message):
+        try:
+            user = TGUser.where(id=msg.from_user.id)[0]
+        except IndexError:
+            await msg.answer('Произошла какая-то ошибка, зарегистрируйтесь заново: /start')
+            return None
+        state = self._dp.current_state(user=msg.from_user.id)
+        return await self._fun(msg=msg, user=user, state=state)
 
 
 class FixParameterTypes:
