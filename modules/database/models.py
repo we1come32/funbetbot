@@ -51,7 +51,7 @@ class Event(BaseModel):
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     name = sa.Column(sa.String(20), default='')
     tournament = sa.Column(sa.ForeignKey('bet_tournaments.id'))
-    teams = sa.orm.relationship('GameTeam')
+    teams = sa.orm.relationship('Team')
 
 
 class Team(BaseModel):
@@ -74,3 +74,4 @@ class Bet(BaseModel):
     value = sa.Column(sa.Float)
     user = sa.Column(sa.ForeignKey('tg_user.id'))
     bet = sa.Column(sa.ForeignKey('bet_teams.id'))
+    is_active = sa.Column(sa.Boolean, default=True)
