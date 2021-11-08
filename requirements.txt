@@ -6,3 +6,5 @@ beautifulsoup4~=4.10.0
 SQLAlchemy~=1.4.26
 sqlalchemy-mixins~=1.5
 aiohttp~=3.8.0
+PyYAML~=6.0
+asyncio~=3.4.3
