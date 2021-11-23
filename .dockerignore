@@ -1,0 +1,10 @@
+/venv
+geckodriver.log
+README.md
+/.idea
+/.git
+.gitignore
+Makefile
+.dockerignore
+db.sqlite
+docker-compose.yml

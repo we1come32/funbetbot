@@ -1,3 +1,4 @@
+import os
 import abc
 import asyncio
 import functools
@@ -11,14 +12,28 @@ from selenium.webdriver.remote.webelement import WebElement
 
 
 class Browser:
-    _webDriver: webdriver.Firefox
-    _opened: bool
+    _webDriver: Union[webdriver.Chrome, webdriver.Firefox]
+    _opened: bool = False
 
     def __init__(self):
-        logger.debug("Запуск страницы браузера")
-        self._webDriver = webdriver.Firefox()
+        debug = bool(os.environ.get('DEBUG', True))
+        logger.debug(f"Значение параметра DEBUG: {debug}")
+        if debug:
+            logger.debug("Запуск страницы браузера FireFox")
+            self._webDriver = webdriver.Firefox()
+        else:
+            logger.debug("Установка параметров запуска Google Chrome")
+
+            chrome_options = webdriver.ChromeOptions()
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--window-size=1420,1080')
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--disable-gpu')
+
+            logger.debug("Запуск страницы браузера Google Chrome")
+            self._webDriver = webdriver.Chrome(chrome_options=chrome_options)
+
         self._opened = True
-        pass
 
     @functools.wraps(webdriver.Firefox.get)
     async def get(self, url: str) -> None:

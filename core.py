@@ -1,5 +1,6 @@
 import asyncio
 import json
+from asyncio import AbstractEventLoop
 
 import loguru
 import aiogram
@@ -142,6 +143,21 @@ async def callback_function(call: types.CallbackQuery):
     )
 
 
-def run():
+def setup():
+    global loop
+
+    async def check_categories():
+        from modules.parser.parimatch import PariMatchLoader
+        pm = PariMatchLoader(debug=True)
+        while True:
+            result = await pm.parse_categories_list()
+            print(result)
+            await asyncio.sleep(1)
+
     database.setup()
-    aiogram.executor.start_polling(dp)
+    loop.create_task(check_categories())
+
+
+def run():
+    global loop
+    aiogram.executor.start_polling(dp, loop=loop)
