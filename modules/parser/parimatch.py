@@ -17,7 +17,7 @@ class PariMatchLoader(ABCParseLoader):
     _update_time: float = 600
     _last_update_time: float
     _last_update_work_time: float
-    _allow_categories: list[str] = [
+    allow_categories: list[str] = [
         # 'футбол',
         'киберспорт',
     ]
@@ -31,14 +31,14 @@ class PariMatchLoader(ABCParseLoader):
         """
         # Ожидание окончания блокировки браузера
         while self._browser_locked:
-            continue
+            await asyncio.sleep(0.5)
         # Ставим блокировку
         self._browser_locked = True
 
         # Переходим на страницу матча
         await self._browser.get(url)
         while len(await self._browser.find_elements(By.CLASS_NAME, '_1XZKhqLNFXAPXD6Xd6ZH8U')) > 2:
-            continue
+            await asyncio.sleep(2)
         # Ждём загрузку странички
         await asyncio.sleep(10)
         # input("Жмакни сюка по Enter: ")
@@ -107,15 +107,15 @@ class PariMatchLoader(ABCParseLoader):
                 tournament.append(parimatchGameInfo)
 
         while self._browser_locked:
-            continue
+            await asyncio.sleep(0.5)
         self._browser_locked = True
         await self._browser.get(url)
         # Ждем загрузки страницы, рекомендуемое время загрузки от 15 до 20 секунд
         while True:
             table = await self._browser.find_elements(By.CLASS_NAME, 'j0HqfLSChMzGBHXhVeFBN')
-            time.sleep(1)
+            await asyncio.sleep(2)
             if len(table):
-                time.sleep(4)
+                await asyncio.sleep(4)
                 break
 
         # Нам все турниры ни к чему, выбираем самые популярные
@@ -147,7 +147,7 @@ class PariMatchLoader(ABCParseLoader):
                     await self._browser.execute_script(
                         f'document.getElementsByClassName(\'ReactVirtualized__List\')[0].scroll(0, {4 * delta * c});'
                     )
-                    time.sleep(4)
+                    await asyncio.sleep(4)
                     old_offsetTop = value
                 else:
                     break
@@ -168,7 +168,7 @@ class PariMatchLoader(ABCParseLoader):
         """
 
         while self._browser_locked:
-            continue
+            await asyncio.sleep(0.5)
         self._browser_locked = True
         # Загрузка главной страницы
         logger.debug(f'Приступаю к загрузке страницы {self._base_url!r}')
@@ -183,6 +183,7 @@ class PariMatchLoader(ABCParseLoader):
         logger.debug(f'Приступаю к поиску видов спорта')
         data = {}
         for element in a[2:]:
+            await asyncio.sleep(1)
             href = element.get_attribute('href')
             name = element.find_elements(By.TAG_NAME, 'span')[-1].text
             # Фильтрация Live-ставок, нам они не нужны

@@ -6,7 +6,7 @@ from aiogram import Dispatcher
 from aiogram.types import Message
 
 from .cache import Cache
-from modules.database.models import TGUser
+from data.models import TGUser
 
 
 class RegisterMessageUser:
@@ -25,7 +25,7 @@ class RegisterMessageUser:
 
     async def __call__(self, msg: Message):
         try:
-            user = TGUser.where(id=msg.from_user.id)[0]
+            user = TGUser.objects.filter(id=msg.from_user.id)[0]
         except IndexError:
             await msg.answer('Произошла какая-то ошибка, зарегистрируйтесь заново: /start')
             return None

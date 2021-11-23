@@ -1,22 +1,14 @@
 import asyncio
-import json
-from asyncio import AbstractEventLoop
 
 import loguru
-import aiogram
 from aiogram import types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.utils.helper import Helper, HelperMode, ListItem
-from aiogram.types import Message, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, \
-    ForceReply
-from aiogram.dispatcher import filters, FSMContext
+from aiogram.dispatcher import FSMContext, filters
+from aiogram.types import KeyboardButton, InlineKeyboardMarkup, Message, InlineKeyboardButton, ReplyKeyboardMarkup
+from aiogram.utils.helper import ListItem, HelperMode, Helper
 
-from utils.decorators import FixParameterTypes, Timer, SpecialTypesOfUsers, RegisterMessageUser
-from utils.logger import LoggerMiddleware
-
-import config
-from modules import database
-from modules.database import models
+from core.telegram import dp, bot
+from data import models
+from utils.decorators import RegisterMessageUser, FixParameterTypes, SpecialTypesOfUsers
 
 
 class States(Helper):
@@ -32,11 +24,6 @@ class States(Helper):
 
 loop = asyncio.get_event_loop()
 
-bot = aiogram.Bot(token=config.ACCESS_TOKEN, loop=loop, connections_limit=6)
-
-dp = aiogram.Dispatcher(bot, storage=MemoryStorage())
-dp.middleware.setup(LoggerMiddleware())
-RegisterMessageUser.set_dispatcher(dp)
 
 menuKeyboard = InlineKeyboardMarkup(row_width=2, resize_keyboard=True)
 menuKeyboard.add(InlineKeyboardButton(text='Баланс', callback_data='commands.player.balance'))
@@ -46,14 +33,13 @@ menuKeyboard.add(InlineKeyboardButton(text='Настройки', callback_data='
 
 
 @dp.message_handler(commands=['start'])
-@FixParameterTypes(Message)
-@SpecialTypesOfUsers(user=True)
 async def start_function(msg: Message):
     kb = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     kb.add(KeyboardButton("Меню"))
     kb.add(InlineKeyboardButton("Сделать ставку"))
-    if models.TGUser.where(id=msg.from_user.id).count() == 0:
-        user = models.TGUser.create(id=msg.from_user.id)
+    c = models.TGUser.objects.filter(id=msg.from_user.id).count()
+    if c == 0:
+        user = models.TGUser.objects.create(id=msg.from_user.id)
         user.save()
         await msg.answer(
             'Добро пожаловать!\n\nЯ бот, принимающий ставки на спорт.\nСтавить можно только мою валюту - "Вирт". '
@@ -90,7 +76,7 @@ async def balance(user: models.TGUser, state: FSMContext, msg: Message = None, m
 @RegisterMessageUser
 async def rating(user: models.TGUser, state: FSMContext, msg: Message = None, message_id: int = None):
     message = "Рейтинг игроков:\n"
-    users: list[models.TGUser] = models.TGUser.where().order_by('balance').all()
+    users: list[models.TGUser] = models.TGUser.objects.filter().order_by('balance').all()
     flag = True
     for number, _ in enumerate(users[:10]):
         _user = await bot.get_chat(_.id)
@@ -142,22 +128,4 @@ async def callback_function(call: types.CallbackQuery):
         text=f'Извини, я не нашел зарегистрированную функцию, отвечающую за callback-data={call.data!r}'
     )
 
-
-def setup():
-    global loop
-
-    async def check_categories():
-        from modules.parser.parimatch import PariMatchLoader
-        pm = PariMatchLoader(debug=True)
-        while True:
-            result = await pm.parse_categories_list()
-            print(result)
-            await asyncio.sleep(1)
-
-    database.setup()
-    loop.create_task(check_categories())
-
-
-def run():
-    global loop
-    aiogram.executor.start_polling(dp, loop=loop)
+print("Функции зареганы")
