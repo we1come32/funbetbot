@@ -1,4 +1,3 @@
-import asyncio
 import time
 
 import loguru
@@ -23,7 +22,7 @@ class PariMatchLoader(ABCParseLoader):
     ]
 
     @logger.catch
-    async def parse_pari(self, url: str) -> dict:
+    def parse_pari(self, url: str) -> dict:
         """
         Меод позволит спарсить коэффициенты на ставки у букмекера
         :param url: str, ссылка на событие у букмекера
@@ -31,18 +30,18 @@ class PariMatchLoader(ABCParseLoader):
         """
         # Ожидание окончания блокировки браузера
         while self._browser_locked:
-            await asyncio.sleep(0.5)
+            continue
         # Ставим блокировку
         self._browser_locked = True
 
         # Переходим на страницу матча
-        await self._browser.get(url)
-        while len(await self._browser.find_elements(By.CLASS_NAME, '_1XZKhqLNFXAPXD6Xd6ZH8U')) > 2:
-            await asyncio.sleep(2)
+        self._browser.get(url)
+        while len(self._browser.find_elements(By.CLASS_NAME, '_1XZKhqLNFXAPXD6Xd6ZH8U')) > 2:
+            time.sleep(2)
         # Ждём загрузку странички
-        await asyncio.sleep(10)
+        time.sleep(10)
         # input("Жмакни сюка по Enter: ")
-        if len(event := (await self._browser.find_elements(By.CLASS_NAME, '_2NQKPrPGvuGOnShyXYTla8'))) > 0:
+        if len(event := (self._browser.find_elements(By.CLASS_NAME, '_2NQKPrPGvuGOnShyXYTla8'))) > 0:
             # Матч всё ещё идет
             result = {'status': 'ok', 'pari': {
                 item.find_element(By.CLASS_NAME, '_3EDVkDYUVqPDxEU_A8ZfAY').text: float(
@@ -58,7 +57,7 @@ class PariMatchLoader(ABCParseLoader):
         return result
 
     @logger.catch
-    async def parse_tournaments(self, url: str) -> dict:
+    def parse_tournaments(self, url: str) -> dict:
         """
         This method need to parse any project to get information about tournaments, events and pari on all this events
         :return: dict - data of games and tournaments with pari and links
@@ -88,7 +87,7 @@ class PariMatchLoader(ABCParseLoader):
                     continue
                 gameInfo = gameInfo[0]
                 pari = parimatchGameObject.find_element(By.CLASS_NAME, 'styles_markets-wrapper__2dylh')
-                parimatchGameInfo['date'] = gameInfo.find_element(By.TAG_NAME, 'span').text
+                parimatchGameInfo['date'] = gameInfo.find_element(By.TAG_NAME, 'span').text.split(' / ')
                 parimatchGameInfo['commands'] = [
                     _.find_element(By.TAG_NAME, 'span').text
                     for _ in gameInfo.find_elements(By.CLASS_NAME, 'styles_wrapper__W25NH')
@@ -107,20 +106,19 @@ class PariMatchLoader(ABCParseLoader):
                 tournament.append(parimatchGameInfo)
 
         while self._browser_locked:
-            await asyncio.sleep(0.5)
+            time.sleep(0.5)
         self._browser_locked = True
-        await self._browser.get(url)
+        self._browser.get(url)
         # Ждем загрузки страницы, рекомендуемое время загрузки от 15 до 20 секунд
         while True:
-            table = await self._browser.find_elements(By.CLASS_NAME, 'j0HqfLSChMzGBHXhVeFBN')
-            await asyncio.sleep(2)
+            table = self._browser.find_elements(By.CLASS_NAME, 'j0HqfLSChMzGBHXhVeFBN')
+            time.sleep(2)
             if len(table):
-                await asyncio.sleep(4)
                 break
 
         # Нам все турниры ни к чему, выбираем самые популярные
         # Нашел блок с самыми популярными
-        popularBlock = await self._browser.find_element(By.CLASS_NAME, '_3dBbVyIrol6CIhTjjLNzqw')
+        popularBlock = self._browser.find_element(By.CLASS_NAME, '_3dBbVyIrol6CIhTjjLNzqw')
         popularBlock.find_element(
             By.TAG_NAME, 'div'  # Нашел все блоки
         ).find_element(
@@ -131,36 +129,36 @@ class PariMatchLoader(ABCParseLoader):
         # Создаем информацию по ивентам в этой игре
         gamesData = {}
         className = '_2ZZzUiMH7QsOr52RGD_non'
-        if len(await self._browser.find_elements(By.CLASS_NAME, 'ReactVirtualized__Grid__innerScrollContainer')):
+        if len(self._browser.find_elements(By.CLASS_NAME, 'ReactVirtualized__Grid__innerScrollContainer')):
             logger.debug("Соревнований слишком много, включаю механизм скролла")
             delta = 126
             old_offsetTop = -126
             c = 0
             while True:
-                for event in await self._browser.find_elements(By.CLASS_NAME, className):
+                for event in self._browser.find_elements(By.CLASS_NAME, className):
                     get_data_about_event(event)
-                value = await self._browser.execute_script(
+                value = self._browser.execute_script(
                     'return document.getElementsByClassName(\'ReactVirtualized__List\')[0].scrollTop;'
                 )
                 if value != old_offsetTop:
                     c += 1
-                    await self._browser.execute_script(
+                    self._browser.execute_script(
                         f'document.getElementsByClassName(\'ReactVirtualized__List\')[0].scroll(0, {4 * delta * c});'
                     )
-                    await asyncio.sleep(4)
+                    time.sleep(4)
                     old_offsetTop = value
                 else:
                     break
             logger.debug("Скролл остановлен")
         else:
-            for event in await self._browser.find_elements(By.CLASS_NAME, className):
+            for event in self._browser.find_elements(By.CLASS_NAME, className):
                 get_data_about_event(event)
         # Сохраняем информацию о турнирах в data
         self._browser_locked = False
         return gamesData
 
     @logger.catch
-    async def parse_categories_list(self) -> dict[str, str]:
+    def parse_categories_list(self) -> dict[str, str]:
         """
         Метод позволит спарсить список видов спорта, по которым принимаются ставки
         :return: dict[str, str] - словарь, ключем является название вида спорта, а значением - ссылка на парсинг
@@ -168,13 +166,13 @@ class PariMatchLoader(ABCParseLoader):
         """
 
         while self._browser_locked:
-            await asyncio.sleep(0.5)
+            time.sleep(0.5)
         self._browser_locked = True
         # Загрузка главной страницы
         logger.debug(f'Приступаю к загрузке страницы {self._base_url!r}')
-        await self._browser.get(self._base_url.encode('ascii', 'ignore').decode('unicode_escape'))
+        self._browser.get(self._base_url.encode('ascii', 'ignore').decode('unicode_escape'))
         while True:
-            a = await self._browser.find_elements(By.CLASS_NAME, '_1XZKhqLNFXAPXD6Xd6ZH8U')
+            a = self._browser.find_elements(By.CLASS_NAME, '_1XZKhqLNFXAPXD6Xd6ZH8U')
             if len(a) > 2:
                 break
         logger.info(f'Страница {self._base_url!r} загружена')
@@ -183,7 +181,7 @@ class PariMatchLoader(ABCParseLoader):
         logger.debug(f'Приступаю к поиску видов спорта')
         data = {}
         for element in a[2:]:
-            await asyncio.sleep(1)
+            time.sleep(1)
             href = element.get_attribute('href')
             name = element.find_elements(By.TAG_NAME, 'span')[-1].text
             # Фильтрация Live-ставок, нам они не нужны
