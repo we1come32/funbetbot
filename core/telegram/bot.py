@@ -13,6 +13,10 @@ loop = asyncio.get_event_loop()
 bot = aiogram.Bot(token=config.ACCESS_TOKEN, loop=loop, connections_limit=6)
 logger.info("Бот авторизован")
 
-dp = aiogram.Dispatcher(bot, storage=MemoryStorage())
+dp = aiogram.Dispatcher(
+    bot,
+    storage=MemoryStorage(),
+    run_tasks_by_default=True
+)
 dp.middleware.setup(LoggerMiddleware())
 RegisterMessageUser.set_dispatcher(dp)

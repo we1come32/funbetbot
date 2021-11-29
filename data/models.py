@@ -133,6 +133,9 @@ class Team(models.Model):
 
     objects = managers.DefaultManager()
 
+    def __str__(self):
+        return str(self.names.get(primary=True))
+
 
 class TeamName(models.Model):
     name = models.CharField(max_length=50, verbose_name='Имя')
@@ -142,6 +145,9 @@ class TeamName(models.Model):
                              related_name='names', verbose_name='Команда')
 
     objects = managers.DefaultManager()
+
+    def __str__(self):
+        return self.name
 
 
 class TeamEvent(models.Model):
