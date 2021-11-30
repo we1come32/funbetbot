@@ -8,6 +8,7 @@ from aiogram.utils import exceptions
 from aiogram.utils.exceptions import InvalidQueryID
 from aiogram.utils.helper import ListItem, HelperMode, Helper
 
+import config
 from core.telegram import dp, bot
 from data import models
 from utils.decorators import RegisterMessageUser, FixParameterTypes
@@ -36,16 +37,24 @@ menuKeyboard.add(InlineKeyboardButton(text='Настройки', callback_data='
 
 async def team_moderation(message_id: int, flag: bool, call: types.CallbackQuery):
     try:
-        await bot.delete_message(chat_id=621629634, message_id=message_id)
+        await bot.delete_message(chat_id=config.CHAT_ID, message_id=message_id)
     except exceptions.BadRequest:
         return
     application: models.models.QuerySet = models.TeamModeration.objects.filter(
         message_id=message_id)
     if len(application):
         application: models.TeamModeration = application[0]
-        application.name.verified = True
-        application.name.save()
-        application.delete()
+        if flag:
+            if application.name.team.names.filter(name=application.name.name, verified=True).count() == 0:
+                application.name.verified = True
+                application.name.save()
+                application.delete()
+            else:
+                application.name.delete()
+        else:
+            application.name.denied = True
+            application.name.save()
+            application.delete()
         text = "Спасибо, учтено"
     else:
         text = "Спасибо, эта заявка была утверждена ранее"

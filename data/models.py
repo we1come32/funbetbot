@@ -98,11 +98,6 @@ class Event(models.Model):
         verbose_name="Статус окончания события",
         blank=True
     )
-    not_supported = models.BooleanField(
-        default=False,
-        verbose_name="Не поддерживается",
-        blank=True
-    )
 
     objects = managers.EventManager()
 
@@ -134,12 +129,19 @@ class Team(models.Model):
     objects = managers.DefaultManager()
 
     def __str__(self):
-        return str(self.names.get(primary=True))
+        try:
+            return str(self.names.get(primary=True))
+        except TeamName.DoesNotExist:
+            return ''
 
 
 class TeamName(models.Model):
+    class Meta:
+        verbose_name_plural = 'Названия команд'
+
     name = models.CharField(max_length=50, verbose_name='Имя')
     verified = models.BooleanField(default=False, verbose_name='Подтвержденный')
+    denied = models.BooleanField(default=False, verbose_name='Отказанный')
     primary = models.BooleanField(default=False, verbose_name='Основной')
     team = models.ForeignKey(Team, on_delete=models.CASCADE,
                              related_name='names', verbose_name='Команда')
@@ -148,6 +150,9 @@ class TeamName(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        return f"<TeamName: {self.team}/{self.name!r}>"
 
 
 class TeamEvent(models.Model):
@@ -198,6 +203,9 @@ class Bet(models.Model):
 
 
 class TeamModeration(models.Model):
+    class Meta:
+        verbose_name_plural = "Заявки"
+
     name = models.ForeignKey(TeamName, on_delete=models.CASCADE,
                              related_name='applications', verbose_name='Имя на заявку')
     message_id = models.IntegerField(default=0, verbose_name='ID сообщения')

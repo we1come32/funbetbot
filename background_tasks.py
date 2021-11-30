@@ -1,4 +1,3 @@
-import datetime
 import asyncio
 import time
 
@@ -8,8 +7,8 @@ from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from aiogram.utils.exceptions import RetryAfter
 from django.utils import timezone
-from pprint import pprint
 
+import config
 import utils.setup_django
 from data.models import *
 from modules.parser.parimatch import PariMatchLoader
@@ -64,9 +63,9 @@ def message_send(**kwargs) -> Message:
         except RetryAfter as e:
             timer = int(str(e).split('.')[1].split()[2])
             time.sleep(timer)
-            exit(0)
 
 
+loguru.logger.add('File.log')
 allow_categories = set_cache_keys({
     'киберспорт': {
         'counter-strike': 'https://cyber.sports.ru/cs/match/{year}-{month:0>2}-{day:0>2}/',
@@ -77,7 +76,7 @@ allow_categories = set_cache_keys({
 })
 
 
-def check_categories() -> None:
+def check_new_events() -> None:
     global allow_categories, pm
     categories = pm.parse_categories_list()
     for categoryName, categoryHref in categories.items():
@@ -115,6 +114,24 @@ def check_categories() -> None:
                                 TeamName.objects.create(name=teamName, team=team,
                                                         verified=True, primary=True)
                                 teams.append(team)
+                        new_line = "\n"
+                        message_send(
+                            chat_id=config.CHAT_ID,
+                            text="<b>Модерация</b>\n\n"
+                                 "<u>Я нашел новое событие!</u>\n"
+                                 f"- Вид спорта: {categoryName!r}\n"
+                                 f"- Подкатегория: {subcategoryName!r}\n"
+                                 f"- Турнир: {tournamentName!r}\n"
+                                 f"- Команды: {', '.join(event['commands'])}\n"
+                                 f"- Дата: {event_date.strftime('%c')}\n\n"
+                                 "Ставки:"
+                                 f"""  {''.join(
+                                     f"{new_line}  {_} - {__}" 
+                                     for _, __ in zip(event['commands'], [event['pari'][0], event['pari'][-1]])
+                                 )}""",
+                            disable_notification=True,
+                            parse_mode=types.ParseMode.HTML
+                        )
                         eventModel = Event.objects.get_or_create(
                             name=' vs '.join(event['commands']),
                             date=event_date,
@@ -131,11 +148,95 @@ def check_categories() -> None:
                                                          event=eventModel, bet=teamBet)
 
 
-def check_events() -> None:
+def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Event) -> None:
+    for game in tournamentGames:
+        if game['date'] == '—':
+            continue
+        game.update(tournament=tournamentName)
+        flag = False
+        for team in game['teams']:
+            _ = TeamName.objects.filter(name=team, verified=True,
+                                        team__events__event__tournament=event.tournament)
+            if len(_) == 0:
+                flag = True
+                banWords = ['esports', 'team', 'gaming', 'мхк', 'or', 'спартак', 'динамо', 'сити', 'арсенал',
+                            'юнайтед', 'цска', 'реал', 'атлетико', 'in', 'in', 'u-19', 'u-20', 'вест', 'локомотив',
+                            'esport', 'of', ]
+                _flag = True
+                question: models.Q | None = None
+                for _ in team.split():
+                    if _.lower() not in banWords and len(_) > 1:
+                        if _flag:
+                            _flag = False
+                            question = models.Q(name__contains=_)
+                        else:
+                            question = question | models.Q(name__contains=_)
+                try:
+                    _teams = TeamName.objects.filter(question, verified=True,
+                                                     team__events__event__tournament=event.tournament)
+                except TypeError:
+                    print(team)
+                    continue
+                _teams_keys = {}
+                if len(_teams):
+                    for _ in _teams:
+                        if _teams_keys.get(_.team.pk, False):
+                            continue
+                        _teams_keys[_.team.pk] = True
+                        if _.team.names.filter(name=team).count() == 0:
+                            kb = InlineKeyboardMarkup(inline_keyboard=[
+                                [
+                                    InlineKeyboardButton(text="✅", callback_data="moderation.confirm"),
+                                    InlineKeyboardButton(text="❌", callback_data="moderation.deny"),
+                                ]
+                            ])
+                            new_line = '\n'
+                            message: Message = message_send(
+                                chat_id=config.CHAT_ID,
+                                text="<b>Модерация</b>\n\n"
+                                     "<u>Возможно</u> команда "
+                                     f"<i>{_.team.names.get(primary=True).name!r}</i> "
+                                     f"имеет ещё одно название: <i>{team!r}</i>\n"
+                                     f"<a href=\"{game['url']}\">Ссылка на модерируемое событие</a>\n\n"
+                                     "Игры команды (с ссылками на PariMatch):\n"
+                                     f"""{f'{new_line}'.join(
+                                         f'{number+1}) <a href="{event.event.parimatch_link}">{event.event.name}</a>'
+                                         for number, event in enumerate(_.team.events.all())
+                                     )}"""
+                                     "\n\nСистеме нужна помощь. Проверьте, пожалуйста, "
+                                     "название команды собственноручно\n\nСпасибо",
+                                reply_markup=kb,
+                                disable_notification=True,
+                                parse_mode=types.ParseMode.HTML
+                            )
+                            TeamModeration.objects.create(
+                                name=TeamName.objects.create(
+                                    name=team,
+                                    team=_.team
+                                ),
+                                message_id=message.message_id
+                            )
+        teams = []
+        for team in game['teams']:
+            teamNames = TeamName.objects.filter(name=team, verified=True,
+                                                team__events__event__tournament=event.tournament)
+            for _ in teamNames:
+                if _.team not in teams:
+                    teams.append(_.team)
+        if len(set(teams)) != 2:
+            continue
+        _ = teams[0].events.filter(event__teams__team=teams[1])
+        if len(set(_)) == 1:
+            editEvent: TeamEvent = _[0]
+            editEvent.event.sports_ru_link = game['url']
+            editEvent.event.save()
+
+
+def check_event_links() -> None:
     global allow_categories
     try:
         while True:
-            events = Event.objects.filter(sports_ru_link='', not_supported=False).order_by('start_time')
+            events = Event.objects.filter(sports_ru_link='').order_by('start_time')
             if not events:
                 break
             for event in events:
@@ -150,91 +251,33 @@ def check_events() -> None:
                     year=event.start_time.year
                 ))
                 for tournamentName, tournamentGames in data.items():
-                    for game in tournamentGames:
-                        if game['date'] == '—':
-                            continue
-                        game.update(tournament=tournamentName)
-                        teams = []
-                        flag = False
-                        for team in game['teams']:
-                            _ = TeamName.objects.filter(name=team)
-                            if len(_):
-                                if len(_ := _.filter(verified=True)):
-                                    teams.append(_[0])
-                                else:
-                                    flag = True
-                            else:
-                                question = models.Q(name__contains=team.split()[0])
-                                flag = True
-                                for _ in team.split()[1:]:
-                                    question = question | models.Q(name__contains=_)
-                                _teams = TeamName.objects.filter(question)
-                                if len(_teams):
-                                    for _ in _teams:
-                                        kb = InlineKeyboardMarkup(inline_keyboard=[
-                                            [
-                                                InlineKeyboardButton(text="✅", callback_data="moderation.confirm"),
-                                                InlineKeyboardButton(text="❌", callback_data="moderation.deny"),
-                                            ]
-                                        ])
-                                        message: Message = message_send(
-                                            chat_id=621629634,
-                                            text="<b>Модерация</b>\n\n"
-                                                 "<u>Возможно</u> команда "
-                                                 f"<i>{_.team.names.get(primary=True).name!r}</i> "
-                                                 f"имеет ещё одно название: <i>{team!r}</i>\n"
-                                                 f"<a href=\"{game['url']}\">Ссылка на модерируемое событие</a>\n\n"
-                                                 "Системе нужна помощь. Проверьте, пожалуйста, "
-                                                 "название команды собственноручно\n\nСпасибо",
-                                            reply_markup=kb,
-                                            disable_notification=True,
-                                            parse_mode=types.ParseMode.HTML
-                                        )
-                                        TeamModeration.objects.create(
-                                            name=TeamName.objects.create(
-                                                name=team,
-                                                team=_.team
-                                            ),
-                                            message_id=message.message_id
-                                        )
-                        if flag:
-                            continue
-                        _ = Event.objects.filter(
-                            models.Q(teams__team=teams[0].team),
-                            models.Q(teams__team=teams[1].team),
-                            start_time__gte=datetime.datetime(
-                                day=event.start_time.day,
-                                month=event.start_time.month,
-                                year=event.start_time.year,
-                            ).replace(tzinfo=pytz.utc),
-                            start_time__lte=(datetime.datetime(
-                                day=event.start_time.day,
-                                month=event.start_time.month,
-                                year=event.start_time.year,
-                            ) + datetime.timedelta(days=1)).replace(tzinfo=pytz.utc)
-                        )
-                        if len(set(_)) == 1:
-                            editEvent: Event = _[0]
-                            editEvent.sports_ru_link = game['url']
-                            editEvent.save()
-                        else:
-                            for __ in _:
-                                __.not_supported = True
-                                __.save()
-                else:
-                    event.not_supported = True
-                    event.save()
-                break
+                    moderate_sports_game(tournamentName, tournamentGames, event)
+            break
     except IndexError:
         pass
 
 
+def check_old_events() -> None:
+    events = Event.objects.filter(~models.Q(sports_ru_link='') &
+                                  models.Q(start_time__lte=timezone.now()))
+    print(events)
+    for event in events:
+        data = sports_ru.parse_event(event.sports_ru_link)
+        data.update(url=event.sports_ru_link)
+        print(data)
+
+
 if __name__ == "__main__":
-    pm = PariMatchLoader(debug=True)
+    # pm = PariMatchLoader()
     while True:
         start_time = time.time()
-        check_events()
-        check_categories()
+        loguru.logger.debug(f"Начинается поиск новых событий")
+        # check_new_events()
+        loguru.logger.debug(f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
+        check_event_links()
+        loguru.logger.debug(f"Закончился поиск связей событий с событиями на sports. "
+                            f"Начинается проверка на окончание событий")
+        check_old_events()
         t = 300 + start_time - time.time()
-        loguru.logger.debug(f"Жду {max(t, 1200)}c.")
-        time.sleep(max(300 + start_time - time.time(), 1200))
+        loguru.logger.debug(f"Проверка на окончание событий завершена. Жду {max(t, 500)}c. до следующего цикла")
+        time.sleep(max(300 + start_time - time.time(), 500))

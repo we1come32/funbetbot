@@ -26,6 +26,9 @@ class RegisterMessageUser:
     async def __call__(self, msg: Message):
         try:
             user = TGUser.objects.filter(id=msg.from_user.id)[0]
+            if msg.from_user.username != '':
+                user.name = msg.from_user.username
+                user.save()
         except IndexError:
             await msg.answer('Произошла какая-то ошибка, зарегистрируйтесь заново: /start')
             return None

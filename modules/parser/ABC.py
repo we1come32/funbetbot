@@ -79,7 +79,7 @@ class ABCParseLoader:
     _base_url: str
     _c = 0
 
-    def __new__(cls, *args, debug=False, **kwargs):
+    def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._last_update_work_time = time.time()
             cls._browser = Browser()
@@ -133,3 +133,7 @@ class ABCParseLoader:
         self._c -= 1
         if self._c == 0:
             self._browser.close()
+
+    @property
+    def browser(self):
+        return self._browser

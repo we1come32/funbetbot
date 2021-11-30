@@ -52,13 +52,13 @@ class TournamentModelAdmin(admin.ModelAdmin):
 
 @admin.register(models.Event)
 class EventModelAdmin(admin.ModelAdmin):
-    list_display = ("name", 'pm_link', 'sports_link', 'not_supported', "tournament", "ended", 'start_time', )
-    list_filter = ("not_supported", "tournament__subcategory__category",
+    list_display = ("name", 'pm_link', 'sports_link', "tournament", "ended", 'start_time', )
+    list_filter = ("tournament__subcategory__category",
                    'tournament__subcategory', "tournament", "ended",)
     search_fields = ("name", "tournament__name",)
     fieldsets = (
         (None, {
-            'fields': ('name', 'tournament', 'start_time', 'ended', 'not_supported')
+            'fields': ('name', 'tournament', 'start_time', 'ended')
         }),
         ('Внутренние параметры', {
             'classes': ('collapse',),
@@ -76,7 +76,7 @@ class EventModelAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.TeamEvent)
-class TeamModelAdmin(admin.ModelAdmin):
+class TeamEventModelAdmin(admin.ModelAdmin):
     list_display = ("team",)
     search_fields = ("team__parimatch_name","team__sports_name",)
 
@@ -103,3 +103,28 @@ class BetModelAdmin(admin.ModelAdmin):
     @staticmethod
     def is_active_status(self):
         return self.is_active and not self.payed
+
+
+@admin.register(models.Team)
+class TeamModelAdmin(admin.ModelAdmin):
+    list_display = ("pk", "get_main", "get_names", 'appl')
+    search_fields = ("names__name__contains",)
+
+    @staticmethod
+    def get_main(self):
+        return self.names.get(primary=True).name
+
+    @staticmethod
+    def appl(model):
+        return ', '.join(f"{_.name!r}" for _ in model.names.filter(verified=False, denied=False))
+
+    @staticmethod
+    def get_names(model):
+        return ', '.join(f"{_.name!r}" for _ in model.names.filter(verified=True))
+
+
+@admin.register(models.TeamName)
+class TeamNameModelAdmin(admin.ModelAdmin):
+    list_display = ("pk", "name", "team", 'verified', 'primary')
+    list_filter = ("verified", 'denied', "primary",)
+    search_fields = ("name",)

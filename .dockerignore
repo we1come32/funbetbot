@@ -8,3 +8,4 @@ Makefile
 .dockerignore
 db.sqlite
 docker-compose.yml
+File.log

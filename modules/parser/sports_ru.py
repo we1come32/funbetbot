@@ -5,9 +5,8 @@ import requests
 
 def parse(url: str) -> dict[str, list]:
     response = requests.get(url)
-    html = response.text
     base_url = url.split('.ru')[0] + '.ru'
-    soup = BeautifulSoup(html, features='html.parser')
+    soup = BeautifulSoup(response.text, features='html.parser')
     try:
         soup.find('div', class_='match-center').find('div', class_='tabs-container')
         better_flag = False
@@ -94,3 +93,21 @@ def parse(url: str) -> dict[str, list]:
                         teams[1]: int(elements[3].find_all('span')[1].text)
                     }
     return data
+
+
+def parse_event(url: str) -> dict:
+    print(url)
+    response = requests.get(url)
+    html = response.text
+    base_url = url.split('.ru')[0] + '.ru'
+    soup = BeautifulSoup(html, features='html.parser')
+    event = soup.find('div', class_='match-summary')
+    teams = [_.find('div', class_='name').text for _ in soup.find_all('div', class_='match-summary__team')]
+    stateObject = soup.find('div', class_='match-summary__state')
+    stateStatus = stateObject.find('span', class_='match-summary__state-status').text
+    stateMatchBoard = [int(_.text) for _ in stateObject.find_all('span', class_='matchboard__card-game')]
+    return {
+        'status': stateStatus,
+        'teams': teams,
+        'matchboard': stateMatchBoard
+    }
