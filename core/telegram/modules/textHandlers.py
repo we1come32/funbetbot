@@ -217,8 +217,14 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         kb.row(InlineKeyboardButton("◀️ Назад",
                                     callback_data=f'commands.bet.{category}.{subcategory}'))
     elif team is None:
-        text = "Выберите сторону"
         _event: models.Event = models.Event.objects.get(pk=event)
+        text = "<u>Выберите победителя встречи</u>\n\n"\
+               "Информация по событию:\n\n" \
+               f"- Вид спорта: {_event.tournament.subcategory.category.name!r}\n" \
+               f"- Подкатегория: {_event.tournament.subcategory.name!r}\n" \
+               f"- Турнир: {_event.tournament.name!r}\n" \
+               f"- Событие: {_event.name!r}\n" \
+               f"- Дата: {_event.start_time}"
         subcategories = _event.teams.all()
         for tmpSubCategory in subcategories:
             kb.row(InlineKeyboardButton(f"{tmpSubCategory}",
@@ -238,7 +244,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         await bot.delete_message(user.id, message_id)
     except AttributeError:
         pass
-    await bot.send_message(user.id, text, reply_markup=kb)
+    await bot.send_message(user.id, text, reply_markup=kb, parse_mode=types.ParseMode.HTML)
 
 
 @dp.message_handler(filters.Text(equals=['настройки'], ignore_case=True))
