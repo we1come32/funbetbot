@@ -44,6 +44,24 @@ async def team_moderation(message_id: int, flag: bool, call: types.CallbackQuery
 
 @dp.message_handler(commands=['start'])
 async def start_function(msg: Message, **kwargs):
+    if msg.text != '/start':
+        payload = msg.text.replace('/start ', '')
+        if payload.startswith('event'):
+            eventID = payload[5:]
+            try:
+                eventID = int(eventID)
+                event = models.Event.objects.get(pk=eventID)
+                if event.ended or event.start_time < timezone.now() or event.sports_ru_link == '':
+                    raise ValueError
+                kwargs = {'category': event.tournament.subcategory.category.pk,
+                          'subcategory': event.tournament.subcategory.pk,
+                          'tournament': event.tournament.pk,
+                          'event': event.pk}
+                return await get_bet(msg, **kwargs)
+            except [ValueError, models.Event.DoesNotExist]:
+                pass
+        elif payload.startswith('user'):
+            pass
     kb = ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
     kb.add(KeyboardButton("Меню"))
     kb.add(InlineKeyboardButton("Сделать ставку"))

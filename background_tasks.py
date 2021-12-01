@@ -236,7 +236,8 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
                     disable_notification=True,
                     parse_mode=types.ParseMode.HTML,
                     reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
-                        InlineKeyboardButton(text='Перейти к боту', url='https://t.me/virtualbetbot'),
+                        InlineKeyboardButton(text='Сделать ставку',
+                                             url=f'https://t.me/virtualbetbot?start=event{editEvent.event.pk}'),
                     ], [
                         InlineKeyboardButton(text='🔗 PariMatch', url=editEvent.event.parimatch_link),
                         InlineKeyboardButton(text='🔗 Sports.Ru', url=game['url']),

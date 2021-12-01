@@ -20,6 +20,12 @@ class TGUser(models.Model):
     tg_language = models.CharField(max_length=2, default='en',
                                    verbose_name="Языковой пакет в Telegram")
 
+    def get_settings(self):
+        try:
+            return self.settings
+        except:
+            return 
+
     def __str__(self):
         if self.name:
             return self.name
