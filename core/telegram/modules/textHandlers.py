@@ -269,6 +269,8 @@ async def player_settings(msg: Message, user: models.TGUser, **kwargs):
 @dp.message_handler()
 @RegisterMessageUser
 async def custom_message(msg: Message, user: models.TGUser, **kwargs):
+    if msg.chat.type != 'private':
+        return
     if msg.reply_to_message:
         data = cache.get(user.id, None)
         if data is None:

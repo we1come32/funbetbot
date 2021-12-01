@@ -24,12 +24,23 @@ class TGUser(models.Model):
         try:
             return self.settings
         except:
-            return 
+            return
 
     def __str__(self):
         if self.name:
             return self.name
         return f"user{self.id}"
+
+
+class Settings(models.Model):
+    class Meta:
+        verbose_name_plural = "Пользовательские настройки"
+
+    user = models.OneToOneField(TGUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+                                default=None, blank=True)
+
+    def __str__(self):
+        return f"Настройки {self.user}"
 
 
 class Category(models.Model):
