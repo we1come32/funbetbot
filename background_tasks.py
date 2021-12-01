@@ -273,21 +273,20 @@ def check_event_links() -> None:
 
 def check_old_events() -> None:
     events = Event.objects.filter(~models.Q(sports_ru_link='') &
-                                  models.Q(start_time__lte=timezone.now()))
+                                  models.Q(start_time__lte=timezone.now()),
+                                  ended=False)
     for event in events:
         data = sports_ru.parse_event(event.sports_ru_link)
         data.update(url=event.sports_ru_link)
-        if data['status'].lower().split()[0] == 'Завершен':
+        if data['status'].lower().split()[0].startswith('заверш'):
             matchboard = data['matchboard']
-            if matchboard[0] != matchboard[1]:
-                event.win(
-                    event.teams.get(
-                        ~models.Q(team__names__name='Ничья'),
-                        first=matchboard[0] != matchboard[1]
-                    )
-                )
+            if matchboard[0] == matchboard[1]:
+                win_team = event.teams.get(team__names__name='Ничья')
+            elif matchboard[0] > matchboard[1]:
+                win_team = event.teams.get(team__names__name=data['teams'][0])
             else:
-                event.draw()
+                win_team = event.teams.get(team__names__name=data['teams'][1])
+            event.win(win_team)
         else:
             print(data)
 

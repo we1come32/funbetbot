@@ -208,6 +208,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         text = "Выберите событие:"
         subcategories = models.Tournament.objects.get(pk=tournament).events.filter(
             ~models.models.Q(sports_ru_link="") & ~models.models.Q(parimatch_link=""),
+            start_time__gte=timezone.now(),
             ended=False)
         for tmpSubCategory in subcategories:
             kb.row(InlineKeyboardButton(tmpSubCategory.name.upper(),
@@ -223,7 +224,8 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
             kb.row(InlineKeyboardButton(f"{tmpSubCategory}",
                                         callback_data=f'commands.bet.{category}.{subcategory}.{tournament}.'
                                                       f'{event}.{tmpSubCategory.pk}'))
-
+        kb.row(InlineKeyboardButton(text='🔗 PariMatch', url=_event.parimatch_link),
+               InlineKeyboardButton(text='🔗 Sports.Ru', url=_event.sports_ru_link))
         kb.row(InlineKeyboardButton("◀️ Назад",
                                     callback_data=f'commands.bet.{category}.{subcategory}.{tournament}'))
     else:

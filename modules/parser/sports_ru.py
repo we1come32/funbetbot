@@ -113,7 +113,7 @@ def parse_event(url: str) -> dict:
             'status': stateStatus.capitalize(),
             'teams': teams,
         }
-        if stateStatus == 'Завершен':
+        if stateStatus.lower().split()[0].startswith('заверш'):
             data.update(matchboard=[int(_.text) for _ in stateObject.find_all('span', class_='matchboard__card-game')])
     else:
         event = soup.find('div', class_='two-commands')
@@ -127,7 +127,7 @@ def parse_event(url: str) -> dict:
             'status': stateStatus.capitalize(),
             'teams': teams,
         }
-        if stateStatus == 'завершен':
+        if stateStatus.lower().split()[0].startswith('заверш'):
             data.update(matchboard=list(map(int, stateObject.find('div', class_='js-match-score').text.split(" : "))))
     loguru.logger.debug(f'Парсинг страницы {url!r} завершен. Возвращено: {data!r}')
     return data

@@ -117,7 +117,7 @@ class Event(models.Model):
         if team not in teams:
             return False
         for _team in teams:
-            flag = _team == team
+            flag = _team.pk == team.pk
             bets: list[Bet] = _team.bets.filter(is_active=True, payed=False)
             for bet in bets:
                 if flag:
@@ -125,9 +125,6 @@ class Event(models.Model):
                 else:
                     bet.lose()
         return True
-
-    def draw(self) -> bool:
-        return self.win(self.teams.get(names__name='Ничья'))
 
 
 class Team(models.Model):
@@ -209,9 +206,10 @@ class Bet(models.Model):
         if not self.is_active:
             return False
         self.winner = True
-        self.save()
         self.user.balance = self.user.balance + self.value * self.money
+        self.user.save()
         self.payed = True
+        self.save()
         return True
 
     def lose(self):
@@ -219,6 +217,7 @@ class Bet(models.Model):
             return False
         self.payed = True
         self.save()
+        return True
 
 
 class TeamModeration(models.Model):
