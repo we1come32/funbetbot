@@ -12,7 +12,7 @@ class TGUser(models.Model):
         verbose_name_plural = "Пользователи Telegram"
 
     id = models.IntegerField(primary_key=True, unique=True, verbose_name="ID")
-    name = models.CharField(max_length=255, default='', verbose_name="Имя Telegram")
+    name = models.CharField(max_length=255, default='', verbose_name="Имя Telegram", blank=True)
     status = models.BooleanField(default=True, verbose_name="Статус активности аккаунта")
     admin = models.BooleanField(default=False, verbose_name="Администратор")
     balance = models.BigIntegerField(default=1000, verbose_name="Баланс")

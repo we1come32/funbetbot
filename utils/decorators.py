@@ -4,6 +4,7 @@ import time
 import loguru
 from aiogram import Dispatcher
 from aiogram.types import Message
+from django.db import IntegrityError
 
 from .cache import Cache
 from data.models import TGUser
@@ -25,18 +26,25 @@ class RegisterMessageUser:
 
     async def __call__(self, msg: Message, **kwargs):
         try:
-            user = TGUser.objects.filter(id=msg.from_user.id)[0]
-            if msg.from_user.username != '':
-                user.name = msg.from_user.username
-                user.save()
-        except IndexError:
+            user = TGUser.objects.get(id=msg.from_user.id)
+            try:
+                if msg.from_user.username != '':
+                    user.name = msg.from_user.username
+                    user.save()
+            except IntegrityError as e:
+                if user.name != '':
+                    user.name = ''
+                    user.save()
+        except TGUser.DoesNotExist:
             await msg.answer('Произошла какая-то ошибка, зарегистрируйтесь заново: /start')
             return None
+        print("Start", self._fun, kwargs)
         result = await self._fun(
             msg=msg,
             user=user,
             **kwargs,
         )
+        print("End", result)
         return result
 
 
@@ -66,42 +74,3 @@ class FixParameterTypes:
 
         return fixed_function
 
-
-class Timer:
-
-    def __init__(self):
-        pass
-
-    def __call__(self, function):
-        @functools.wraps(function)
-        async def timer(*args, **kwargs):
-            st = time.time()
-            result = await function(*args, **kwargs)
-            t = time.time()
-            loguru.logger.debug(f"Work time {function.__name__!r} = {st-t}c.")
-        return timer
-
-
-class SpecialTypesOfUsers:
-    _user: bool
-    _bot: bool
-    _chat: bool
-
-    def __init__(self, user: bool = False, bot: bool = False, chat: bool = False):
-        self._user = user
-        self._bot = bot
-        self._chat = chat
-
-    def __call__(self, function):
-
-        @functools.wraps(function)
-        async def func(msg: Message):
-            if self._chat is False and msg.chat.type == 'group':
-                return False
-            if self._bot is False and msg.via_bot:
-                return False
-            if self._user is False and msg.chat.type == 'private':
-                return False
-            return await function(msg)
-
-        return func

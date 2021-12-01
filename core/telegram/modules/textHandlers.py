@@ -52,8 +52,8 @@ async def start_function(msg: Message, **kwargs):
         user = models.TGUser.objects.create(id=msg.from_user.id)
         user.save()
         await msg.answer(
-            'Добро пожаловать!\n\nЯ бот, принимающий ставки на спорт.\nСтавить можно только мою валюту - "Вирт". '
-            '\nДля старта я дам тебе 1000 Вирт, дальше уже сам. Сделай свою первую ставку, только не ошибись, '
+            'Добро пожаловать!\n\nЯ бот, принимающий ставки на спорт.\nСтавить можно только мою валюту - 💴. '
+            '\nДля старта я дам тебе 💴 1000, дальше уже сам. Сделай свою первую ставку, только не ошибись, '
             'валюта не бесконечная.',
             reply_markup=kb
         )
@@ -64,14 +64,12 @@ async def start_function(msg: Message, **kwargs):
         )
 
 
-@dp.message_handler(filters.Text(equals=['меню', 'menu'], ignore_case=True))
 @dp.message_handler(commands=['menu', 'меню'])
 @RegisterMessageUser
 async def menu(msg: Message, user: models.TGUser, **kwargs):
     await bot.send_message(user.id, "Жду вашей ставки", reply_markup=menuKeyboard)
 
 
-@dp.message_handler(filters.Text(equals=['баланс', 'balance'], ignore_case=True))
 @dp.message_handler(commands=['balance', 'баланс'])
 @RegisterMessageUser
 async def balance(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
@@ -95,7 +93,6 @@ async def addBalance(user: models.TGUser, msg: Message = None, message_id: int =
                            parse_mode=types.ParseMode.HTML,)
 
 
-@dp.message_handler(filters.Text(equals=['rating', 'рейтинг'], ignore_case=True))
 @dp.message_handler(commands=['rating', 'рейтинг'])
 @RegisterMessageUser
 async def rating(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
@@ -113,7 +110,6 @@ async def rating(user: models.TGUser, msg: Message = None, message_id: int = Non
     await bot.send_message(user.id, message, reply_markup=menuKeyboard)
 
 
-@dp.message_handler(filters.Text(equals=['ставки', 'bets'], ignore_case=True))
 @dp.message_handler(commands=['bets', 'ставки'])
 @RegisterMessageUser
 async def bets(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
@@ -167,7 +163,6 @@ async def get_id(msg: Message, **kwargs):
     await msg.answer("Your Telegram ID: `{user_id}`".format(user_id=msg.from_user.id))
 
 
-@dp.message_handler(filters.Text(equals=["сделать ставку", "ставку"], ignore_case=True))
 @dp.message_handler(commands=['make_bet', 'сделать_ставку'])
 @RegisterMessageUser
 async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
@@ -247,7 +242,6 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
     await bot.send_message(user.id, text, reply_markup=kb, parse_mode=types.ParseMode.HTML)
 
 
-@dp.message_handler(filters.Text(equals=['настройки'], ignore_case=True))
 @dp.message_handler(commands=['settings', 'настройки'])
 @RegisterMessageUser
 async def player_settings(msg: Message, user: models.TGUser, **kwargs):
@@ -289,7 +283,7 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
                 team = f"Победа команды {team}"
             await bot.send_message(
                 user.id,
-                f"✅ <b>Ставка#{bet.pk} успешно сделана!</b>\n"
+                f"✅ <b>Ставка#{bet.pk} успешно сделана!</b>\n\n"
                 f"Исход на {team!r} с коэфициентом {bet.value}\n"
                 f"Возможный выигрыш <b>💴 {int(bet.money*bet.value)}</b>\n\n"
                 f"<code>Подробнее:\n"
@@ -314,4 +308,15 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
                 inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]]
             )
         )
-
+    elif msg.text.lower() in ['сделать ставку']:
+        return await get_bet(msg)
+    elif msg.text.lower() in ['настройки']:
+        return await player_settings(msg)
+    elif msg.text.lower() in ['ставки', 'bets']:
+        return await bets(msg)
+    elif msg.text.lower() in ['rating', 'рейтинг']:
+        return await rating(msg)
+    elif msg.text.lower() in ['баланс', 'balance']:
+        return await balance(msg)
+    elif msg.text.lower() in ['меню', 'menu']:
+        return await menu(msg)
