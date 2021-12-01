@@ -206,9 +206,9 @@ class Bet(models.Model):
         if not self.is_active:
             return False
         self.winner = True
+        self.payed = True
         self.user.balance = self.user.balance + self.value * self.money
         self.user.save()
-        self.payed = True
         self.save()
         return True
 
