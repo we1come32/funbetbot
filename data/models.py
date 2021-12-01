@@ -2,6 +2,8 @@ import datetime
 from typing import Union
 
 from django.db import models
+from django.utils import timezone
+
 from . import managers
 
 
@@ -134,9 +136,12 @@ class Team(models.Model):
 
     objects = managers.DefaultManager()
 
+    def get_name(self) -> str:
+        return str(self.names.get(primary=True))
+
     def __str__(self):
         try:
-            return str(self.names.get(primary=True))
+            return self.get_name()
         except TeamName.DoesNotExist:
             return 'team'
 
@@ -176,10 +181,10 @@ class TeamEvent(models.Model):
         return f"{self.team} - {self.bet}"
 
     def create_bet(self, money: int, user: TGUser) -> Union["Bet", bool]:
-        if user.balance >= money and Bet.objects.filter(user=user, team=self).count() == 0:
+        if user.balance >= money and Bet.objects.filter(user=user, team__event=self.event).count() == 0:
             user.balance = user.balance - money
             user.save()
-            return Bet.objects.create(value=self.bet, money=500, user=user, team=self)
+            return Bet.objects.create(value=self.bet, money=money, user=user, team=self)
         return False
 
 
@@ -196,6 +201,7 @@ class Bet(models.Model):
     winner = models.BooleanField(default=False, verbose_name="Выиграл ли")
     is_active = models.BooleanField(default=True, verbose_name="Активна ли ставка")
     payed = models.BooleanField(default=False, verbose_name="Оплачена ли ставка")
+    created_date = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
     objects = managers.DefaultManager()
 

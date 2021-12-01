@@ -23,7 +23,7 @@ class RegisterMessageUser:
         self._fun = function
         self._cache = Cache('user_state')
 
-    async def __call__(self, msg: Message):
+    async def __call__(self, msg: Message, **kwargs):
         try:
             user = TGUser.objects.filter(id=msg.from_user.id)[0]
             if msg.from_user.username != '':
@@ -32,12 +32,12 @@ class RegisterMessageUser:
         except IndexError:
             await msg.answer('Произошла какая-то ошибка, зарегистрируйтесь заново: /start')
             return None
-        # state = self._dp.current_state(user=msg.from_user.id)
-        return await self._fun(
+        result = await self._fun(
             msg=msg,
             user=user,
-            # state=state
+            **kwargs,
         )
+        return result
 
 
 class FixParameterTypes:
