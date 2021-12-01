@@ -271,6 +271,11 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
                                                 f"Напомню, у вас сейчас 💴 {user.balance}:",
                                        reply_markup=ForceReply.create(selective=True))
                 return
+            if money < 100:
+                await bot.send_message(user.id, f"Минимальная ставка - 💴 100. Введите сумму ставки.\n"
+                                                f"Напомню, у вас сейчас 💴 {user.balance}:",
+                                       reply_markup=ForceReply.create(selective=True))
+                return
         except ValueError:
             await bot.send_message(user.id, f"Сумма ставки должна быть целым числом. Введите сумму ставки.\n"
                                             f"Напомню, у вас сейчас 💴 {user.balance}:",
