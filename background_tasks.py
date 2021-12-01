@@ -277,7 +277,7 @@ def check_old_events() -> None:
     for event in events:
         data = sports_ru.parse_event(event.sports_ru_link)
         data.update(url=event.sports_ru_link)
-        if data['status'] == 'Завершен':
+        if data['status'].lower().split()[0] == 'Завершен':
             matchboard = data['matchboard']
             if matchboard[0] != matchboard[1]:
                 event.win(
@@ -288,6 +288,8 @@ def check_old_events() -> None:
                 )
             else:
                 event.draw()
+        else:
+            print(data)
 
 
 if __name__ == "__main__":

@@ -100,14 +100,14 @@ async def addBalance(user: models.TGUser, msg: Message = None, message_id: int =
 @RegisterMessageUser
 async def rating(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
     message = "Рейтинг игроков:\n"
-    users: list[models.TGUser] = models.TGUser.objects.filter().order_by('balance').all()
+    users: list[models.TGUser] = models.TGUser.objects.filter().order_by('-balance').all()
     flag = True
     for number, _ in enumerate(users[:10]):
         _user = await bot.get_chat(_.id)
         _user = _user.values.get('username', f'user{_.id}')
         if _.id == user.id:
             flag = False
-        message += f"\n{number+1}) {_user}"
+        message += f"\n{number+1}) {_user} - {_.balance}"
     if flag:
         message += f"\n\nВаше место в рейтинге - {1 + users.index(user)}"
     await bot.send_message(user.id, message, reply_markup=menuKeyboard)
@@ -206,7 +206,9 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
                                     callback_data=f'commands.bet.{category}'))
     elif event is None:
         text = "Выберите событие:"
-        subcategories = models.Tournament.objects.get(pk=tournament).events.filter(ended=False)
+        subcategories = models.Tournament.objects.get(pk=tournament).events.filter(
+            ~models.models.Q(sports_ru_link="") & ~models.models.Q(parimatch_link=""),
+            ended=False)
         for tmpSubCategory in subcategories:
             kb.row(InlineKeyboardButton(tmpSubCategory.name.upper(),
                                         callback_data=f'commands.bet.{category}.{subcategory}.{tournament}.'
@@ -215,11 +217,13 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
                                     callback_data=f'commands.bet.{category}.{subcategory}'))
     elif team is None:
         text = "Выберите сторону"
-        subcategories = models.Event.objects.get(pk=event).teams.all()
+        _event: models.Event = models.Event.objects.get(pk=event)
+        subcategories = _event.teams.all()
         for tmpSubCategory in subcategories:
             kb.row(InlineKeyboardButton(f"{tmpSubCategory}",
                                         callback_data=f'commands.bet.{category}.{subcategory}.{tournament}.'
                                                       f'{event}.{tmpSubCategory.pk}'))
+
         kb.row(InlineKeyboardButton("◀️ Назад",
                                     callback_data=f'commands.bet.{category}.{subcategory}.{tournament}'))
     else:

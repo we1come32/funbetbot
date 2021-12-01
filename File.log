@@ -7846,3 +7846,452 @@
 2021-12-01 17:42:00.221 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/'
 2021-12-01 17:42:00.584 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Eternal Fire', 'Ecstatic']}
 2021-12-01 17:42:00.587 | DEBUG    | __main__:<module>:305 - Проверка на окончание событий завершена. Жду 300c. до следующего цикла
+2021-12-01 17:47:00.592 | DEBUG    | __main__:<module>:297 - Начинается поиск новых событий
+2021-12-01 17:47:00.595 | DEBUG    | modules.parser.parimatch:parse_categories_list:172 - Приступаю к загрузке страницы 'https://www.parimatch.ru/ru/'
+2021-12-01 17:47:06.359 | INFO     | modules.parser.parimatch:parse_categories_list:178 - Страница 'https://www.parimatch.ru/ru/' загружена
+2021-12-01 17:47:06.365 | DEBUG    | modules.parser.parimatch:parse_categories_list:181 - Приступаю к поиску видов спорта
+2021-12-01 17:47:33.879 | INFO     | modules.parser.parimatch:parse_categories_list:194 - Найдено 24 видов спорта, среди них: Футбол, Киберспорт, Хоккей, Баскетбол, Теннис, Настольный теннис, Волейбол, UFC, Гандбол, Пляжный волейбол, Футзал, Американский футбол, Хоккей с мячом, Хоккей на траве, Авто мото, Бадминтон, Биатлон, Бокс, Водное поло, Крикет, MMA, Регби, Дартс, Снукер
+2021-12-01 17:47:42.880 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 17:47:42.926 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 17:47:43.024 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига чемпионов УЕФА' has 16 events
+2021-12-01 17:47:45.021 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига Европы УЕФА' has 16 events
+2021-12-01 17:47:55.051 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Россия' has 19 events
+2021-12-01 17:48:09.732 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Англия' has 21 events
+2021-12-01 17:48:24.632 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Бундеслига' in game 'Германия' has 19 events
+2021-12-01 17:48:39.170 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Ла Лига' in game 'Испания' has 22 events
+2021-12-01 17:48:58.391 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Серия А' in game 'Италия' has 18 events
+2021-12-01 17:49:12.815 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Лига 1' in game 'Франция' has 24 events
+2021-12-01 17:49:52.288 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 17:50:04.879 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 17:50:05.162 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 17:50:05.563 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'IEM' in game 'Counter-Strike' has 9 events
+2021-12-01 17:50:07.533 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Malta Vibes' in game 'Counter-Strike' has 6 events
+2021-12-01 17:50:12.405 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Funspark ULTI EU' in game 'Counter-Strike' has 1 events
+2021-12-01 17:50:16.596 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC EEU Division 1' in game 'Dota 2' has 11 events
+2021-12-01 17:50:17.825 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC WEU Division 1' in game 'Dota 2' has 7 events
+2021-12-01 17:50:26.855 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC CN Division 1' in game 'Dota 2' has 11 events
+2021-12-01 17:50:48.346 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 17:50:57.859 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 17:50:58.372 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Регулярный сезон' in game 'КХЛ' has 21 events
+2021-12-01 17:51:01.456 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Регулярный сезон' in game 'NHL' has 16 events
+2021-12-01 17:51:03.503 | DEBUG    | __main__:<module>:299 - Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports
+2021-12-01 17:51:03.985 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 17:51:04.754 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 17:51:05.374 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 17:51:06.451 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:08.459 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:10.513 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:12.478 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:14.272 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:16.225 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:18.002 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:20.000 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:21.865 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:23.865 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:25.726 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 17:51:27.291 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://cyber.sports.ru/cs/match/2021-12-02/'
+2021-12-01 17:51:28.413 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 17:51:29.093 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 17:51:29.673 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 17:51:30.293 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 17:51:30.988 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 17:51:32.001 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 17:51:33.396 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 17:51:35.054 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 17:51:36.456 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 17:51:38.300 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-03/'
+2021-12-01 17:51:39.147 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-03/'
+2021-12-01 17:51:41.268 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 17:51:45.884 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 17:51:46.767 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 17:51:47.695 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 17:51:48.671 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 17:51:49.575 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 17:51:50.768 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 17:51:52.926 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 17:51:57.943 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 17:52:02.209 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 17:52:04.210 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 17:52:09.704 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 17:52:13.846 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 17:52:17.870 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 17:52:22.378 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 17:52:26.258 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-05/'
+2021-12-01 17:52:27.639 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 17:52:32.561 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-06/'
+2021-12-01 17:52:33.508 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://cyber.sports.ru/dota2/match/2021-12-07/'
+2021-12-01 17:52:34.249 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 17:52:35.293 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 17:52:36.327 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 17:52:37.227 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 17:52:38.302 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 17:52:39.074 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 17:52:39.729 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 17:52:40.480 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:41.354 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:41.960 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:42.616 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:43.259 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:43.974 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:44.586 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:45.179 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:45.904 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:46.507 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:47.131 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 17:52:48.030 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-10/'
+2021-12-01 17:52:49.655 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 17:52:53.231 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 17:52:55.943 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 17:52:58.795 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-12/'
+2021-12-01 17:52:59.679 | DEBUG    | __main__:<module>:301 - Закончился поиск связей событий с событиями на sports. Начинается проверка на окончание событий
+2021-12-01 17:52:59.685 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/tricked-esports-dynamo-eclot-2021-12-01/'
+2021-12-01 17:53:00.176 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/tricked-esports-dynamo-eclot-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Dynamo Eclot', 'Tricked eSports']}
+2021-12-01 17:53:00.180 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/'
+2021-12-01 17:53:00.669 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Eternal Fire', 'Ecstatic']}
+2021-12-01 17:53:00.689 | DEBUG    | __main__:<module>:305 - Проверка на окончание событий завершена. Жду 300c. до следующего цикла
+2021-12-01 17:58:00.698 | DEBUG    | __main__:<module>:297 - Начинается поиск новых событий
+2021-12-01 17:58:00.703 | DEBUG    | modules.parser.parimatch:parse_categories_list:172 - Приступаю к загрузке страницы 'https://www.parimatch.ru/ru/'
+2021-12-01 17:58:07.531 | INFO     | modules.parser.parimatch:parse_categories_list:178 - Страница 'https://www.parimatch.ru/ru/' загружена
+2021-12-01 17:58:07.538 | DEBUG    | modules.parser.parimatch:parse_categories_list:181 - Приступаю к поиску видов спорта
+2021-12-01 17:58:37.185 | INFO     | modules.parser.parimatch:parse_categories_list:194 - Найдено 24 видов спорта, среди них: Футбол, Киберспорт, Хоккей, Баскетбол, Теннис, Настольный теннис, Волейбол, UFC, Гандбол, Пляжный волейбол, Футзал, Американский футбол, Хоккей с мячом, Хоккей на траве, Авто мото, Бадминтон, Биатлон, Бокс, Водное поло, Крикет, MMA, Регби, Дартс, Снукер
+2021-12-01 17:58:46.930 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 17:58:46.989 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 17:58:47.113 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига чемпионов УЕФА' has 16 events
+2021-12-01 17:58:49.410 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига Европы УЕФА' has 16 events
+2021-12-01 17:58:59.337 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Россия' has 19 events
+2021-12-01 17:59:13.856 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Англия' has 21 events
+2021-12-01 17:59:28.678 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Бундеслига' in game 'Германия' has 19 events
+2021-12-01 17:59:43.247 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Ла Лига' in game 'Испания' has 22 events
+2021-12-01 18:00:03.908 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Серия А' in game 'Италия' has 18 events
+2021-12-01 18:00:19.123 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Лига 1' in game 'Франция' has 24 events
+2021-12-01 18:01:03.541 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 18:01:13.165 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:01:13.173 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 18:01:13.222 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'IEM' in game 'Counter-Strike' has 9 events
+2021-12-01 18:01:14.247 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Malta Vibes' in game 'Counter-Strike' has 5 events
+2021-12-01 18:01:19.446 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Funspark ULTI EU' in game 'Counter-Strike' has 1 events
+2021-12-01 18:01:19.611 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC EEU Division 1' in game 'Dota 2' has 11 events
+2021-12-01 18:01:24.901 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC WEU Division 1' in game 'Dota 2' has 7 events
+2021-12-01 18:01:33.762 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC CN Division 1' in game 'Dota 2' has 11 events
+2021-12-01 18:01:55.258 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 18:02:07.074 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:02:07.501 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Регулярный сезон' in game 'КХЛ' has 21 events
+2021-12-01 18:02:11.043 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Регулярный сезон' in game 'NHL' has 16 events
+2021-12-01 18:02:13.721 | DEBUG    | __main__:<module>:299 - Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports
+2021-12-01 18:02:14.379 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:02:15.027 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:02:15.903 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:02:17.110 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:20.849 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:24.119 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:27.730 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:30.479 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:33.073 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:35.230 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:37.594 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:40.106 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:42.222 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:44.909 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:02:46.471 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://cyber.sports.ru/cs/match/2021-12-02/'
+2021-12-01 18:02:47.645 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:02:48.550 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:02:49.257 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:02:49.960 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:02:50.601 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:02:51.597 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:02:52.940 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:02:54.552 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:02:56.208 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:02:58.302 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-03/'
+2021-12-01 18:02:59.511 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-03/'
+2021-12-01 18:03:03.164 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:03:08.445 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:03:09.348 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:03:10.786 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:03:12.342 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:03:13.168 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:03:14.568 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:03:17.030 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:03:23.179 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:03:27.715 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:03:29.590 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:03:34.455 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:03:39.168 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:03:44.310 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:03:49.295 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:03:53.715 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-05/'
+2021-12-01 18:03:55.600 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:03:59.450 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-06/'
+2021-12-01 18:04:00.578 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://cyber.sports.ru/dota2/match/2021-12-07/'
+2021-12-01 18:04:01.660 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:04:02.605 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:04:03.921 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:04:04.936 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:04:06.308 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:04:07.167 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:04:08.004 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:04:08.918 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:09.648 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:10.241 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:11.135 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:11.794 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:12.836 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:13.713 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:14.500 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:15.191 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:15.872 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:16.755 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:04:17.599 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-10/'
+2021-12-01 18:04:19.487 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:04:22.718 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:04:25.300 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:04:28.439 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-12/'
+2021-12-01 18:04:29.128 | DEBUG    | __main__:<module>:301 - Закончился поиск связей событий с событиями на sports. Начинается проверка на окончание событий
+2021-12-01 18:04:29.135 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/tricked-esports-dynamo-eclot-2021-12-01/'
+2021-12-01 18:04:29.429 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/tricked-esports-dynamo-eclot-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Dynamo Eclot', 'Tricked eSports']}
+2021-12-01 18:04:29.434 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/nemiga-gaming-astralis-talent-2021-12-01/'
+2021-12-01 18:04:29.715 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/nemiga-gaming-astralis-talent-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Astralis Talent', 'Nemiga Gaming']}
+2021-12-01 18:04:29.719 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/'
+2021-12-01 18:04:30.002 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Eternal Fire', 'Ecstatic']}
+2021-12-01 18:04:30.006 | DEBUG    | __main__:<module>:305 - Проверка на окончание событий завершена. Жду 300c. до следующего цикла
+2021-12-01 18:09:30.020 | DEBUG    | __main__:<module>:297 - Начинается поиск новых событий
+2021-12-01 18:09:30.025 | DEBUG    | modules.parser.parimatch:parse_categories_list:172 - Приступаю к загрузке страницы 'https://www.parimatch.ru/ru/'
+2021-12-01 18:09:37.541 | INFO     | modules.parser.parimatch:parse_categories_list:178 - Страница 'https://www.parimatch.ru/ru/' загружена
+2021-12-01 18:09:37.546 | DEBUG    | modules.parser.parimatch:parse_categories_list:181 - Приступаю к поиску видов спорта
+2021-12-01 18:10:06.336 | INFO     | modules.parser.parimatch:parse_categories_list:194 - Найдено 24 видов спорта, среди них: Футбол, Киберспорт, Хоккей, Баскетбол, Теннис, Настольный теннис, Волейбол, UFC, Гандбол, Пляжный волейбол, Футзал, Американский футбол, Хоккей с мячом, Хоккей на траве, Авто мото, Бадминтон, Биатлон, Бокс, Водное поло, Крикет, MMA, Регби, Дартс, Снукер
+2021-12-01 18:10:18.054 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:10:18.619 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 18:10:20.277 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига чемпионов УЕФА' has 16 events
+2021-12-01 18:10:24.330 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига Европы УЕФА' has 16 events
+2021-12-01 18:10:35.456 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Россия' has 19 events
+2021-12-01 18:10:50.987 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Англия' has 21 events
+2021-12-01 18:11:06.746 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Бундеслига' in game 'Германия' has 19 events
+2021-12-01 18:11:22.188 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Ла Лига' in game 'Испания' has 22 events
+2021-12-01 18:11:41.313 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Серия А' in game 'Италия' has 18 events
+2021-12-01 18:11:57.165 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Лига 1' in game 'Франция' has 24 events
+2021-12-01 18:12:38.338 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 18:12:49.630 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:12:49.644 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 18:12:49.788 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'IEM' in game 'Counter-Strike' has 9 events
+2021-12-01 18:12:50.805 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Malta Vibes' in game 'Counter-Strike' has 5 events
+2021-12-01 18:12:55.958 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Funspark ULTI EU' in game 'Counter-Strike' has 1 events
+2021-12-01 18:12:56.105 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC EEU Division 1' in game 'Dota 2' has 11 events
+2021-12-01 18:13:01.259 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC WEU Division 1' in game 'Dota 2' has 7 events
+2021-12-01 18:13:10.270 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC CN Division 1' in game 'Dota 2' has 11 events
+2021-12-01 18:13:31.911 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 18:13:40.264 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:13:40.360 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Регулярный сезон' in game 'КХЛ' has 21 events
+2021-12-01 18:13:43.700 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Регулярный сезон' in game 'NHL' has 16 events
+2021-12-01 18:13:46.775 | DEBUG    | __main__:<module>:299 - Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports
+2021-12-01 18:13:47.615 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:13:52.391 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:13:54.464 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:13:56.587 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:13:59.014 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:01.700 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:03.766 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:05.945 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:08.001 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:09.833 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:12.049 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:14.089 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:16.540 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:18.777 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:14:20.511 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://cyber.sports.ru/cs/match/2021-12-02/'
+2021-12-01 18:14:21.623 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:14:22.315 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:14:22.973 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:14:23.670 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:14:24.388 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:14:25.284 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:14:26.949 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:14:28.338 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:14:29.736 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:14:31.177 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-03/'
+2021-12-01 18:14:32.240 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-03/'
+2021-12-01 18:14:34.441 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:14:38.504 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:14:39.466 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:14:40.225 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:14:41.092 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:14:41.824 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:14:42.568 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:14:43.986 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:14:49.218 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:14:53.148 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:14:55.362 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:15:00.194 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:15:05.156 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:15:09.870 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:15:14.872 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:15:18.900 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-05/'
+2021-12-01 18:15:20.373 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:15:25.168 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-06/'
+2021-12-01 18:15:26.287 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://cyber.sports.ru/dota2/match/2021-12-07/'
+2021-12-01 18:15:27.081 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:15:28.397 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:15:29.621 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:15:30.518 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:15:31.752 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:15:32.716 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:15:33.483 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:15:34.459 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:35.236 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:35.981 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:36.672 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:37.598 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:38.250 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:38.983 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:39.680 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:40.501 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:41.242 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:41.946 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:15:42.977 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-10/'
+2021-12-01 18:15:44.792 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:15:48.138 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:15:51.427 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:15:54.918 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-12/'
+2021-12-01 18:15:55.963 | DEBUG    | __main__:<module>:301 - Закончился поиск связей событий с событиями на sports. Начинается проверка на окончание событий
+2021-12-01 18:15:55.970 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/tricked-esports-dynamo-eclot-2021-12-01/'
+2021-12-01 18:15:56.310 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/tricked-esports-dynamo-eclot-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Dynamo Eclot', 'Tricked eSports']}
+2021-12-01 18:15:56.315 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/nemiga-gaming-astralis-talent-2021-12-01/'
+2021-12-01 18:15:56.712 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/nemiga-gaming-astralis-talent-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Astralis Talent', 'Nemiga Gaming']}
+2021-12-01 18:15:56.718 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/'
+2021-12-01 18:15:57.108 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Eternal Fire', 'Ecstatic']}
+2021-12-01 18:15:57.112 | DEBUG    | __main__:<module>:305 - Проверка на окончание событий завершена. Жду 300c. до следующего цикла
+2021-12-01 18:20:57.122 | DEBUG    | __main__:<module>:297 - Начинается поиск новых событий
+2021-12-01 18:20:57.129 | DEBUG    | modules.parser.parimatch:parse_categories_list:172 - Приступаю к загрузке страницы 'https://www.parimatch.ru/ru/'
+2021-12-01 18:21:03.087 | INFO     | modules.parser.parimatch:parse_categories_list:178 - Страница 'https://www.parimatch.ru/ru/' загружена
+2021-12-01 18:21:03.090 | DEBUG    | modules.parser.parimatch:parse_categories_list:181 - Приступаю к поиску видов спорта
+2021-12-01 18:21:30.621 | INFO     | modules.parser.parimatch:parse_categories_list:194 - Найдено 24 видов спорта, среди них: Футбол, Киберспорт, Хоккей, Баскетбол, Теннис, Настольный теннис, Волейбол, UFC, Гандбол, Пляжный волейбол, Футзал, Американский футбол, Хоккей с мячом, Хоккей на траве, Авто мото, Бадминтон, Биатлон, Бокс, Водное поло, Крикет, MMA, Регби, Дартс, Снукер
+2021-12-01 18:21:39.752 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:21:39.769 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 18:21:39.813 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига чемпионов УЕФА' has 16 events
+2021-12-01 18:21:42.229 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига Европы УЕФА' has 16 events
+2021-12-01 18:21:53.076 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Россия' has 19 events
+2021-12-01 18:22:08.056 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Англия' has 21 events
+2021-12-01 18:22:22.846 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Бундеслига' in game 'Германия' has 19 events
+2021-12-01 18:22:37.430 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Ла Лига' in game 'Испания' has 22 events
+2021-12-01 18:22:59.535 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Серия А' in game 'Италия' has 18 events
+2021-12-01 18:23:14.623 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Лига 1' in game 'Франция' has 24 events
+2021-12-01 18:23:55.505 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 18:24:04.947 | DEBUG    | modules.parser.ABC:__init__:19 - Значение параметра DEBUG: True
+2021-12-01 18:24:04.951 | DEBUG    | modules.parser.ABC:__init__:21 - Запуск страницы браузера FireFox
+2021-12-01 18:24:13.606 | DEBUG    | modules.parser.ABC:__init__:92 - Инициализация парсера https://www.parimatch.ru/ru/
+2021-12-01 18:24:13.609 | DEBUG    | __main__:<module>:299 - Начинается поиск новых событий
+2021-12-01 18:24:13.614 | DEBUG    | modules.parser.parimatch:parse_categories_list:172 - Приступаю к загрузке страницы 'https://www.parimatch.ru/ru/'
+2021-12-01 18:24:24.197 | INFO     | modules.parser.parimatch:parse_categories_list:178 - Страница 'https://www.parimatch.ru/ru/' загружена
+2021-12-01 18:24:24.200 | DEBUG    | modules.parser.parimatch:parse_categories_list:181 - Приступаю к поиску видов спорта
+2021-12-01 18:24:52.640 | INFO     | modules.parser.parimatch:parse_categories_list:194 - Найдено 24 видов спорта, среди них: Футбол, Киберспорт, Хоккей, Баскетбол, Теннис, Настольный теннис, Волейбол, UFC, Гандбол, Пляжный волейбол, Футзал, Американский футбол, Хоккей с мячом, Хоккей на траве, Авто мото, Бадминтон, Биатлон, Бокс, Водное поло, Крикет, MMA, Регби, Дартс, Снукер
+2021-12-01 18:25:08.430 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:25:08.447 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 18:25:08.561 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига чемпионов УЕФА' has 16 events
+2021-12-01 18:25:11.389 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига Европы УЕФА' has 16 events
+2021-12-01 18:25:23.301 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Россия' has 19 events
+2021-12-01 18:25:38.815 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Премьер-лига' in game 'Англия' has 21 events
+2021-12-01 18:25:54.602 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Бундеслига' in game 'Германия' has 19 events
+2021-12-01 18:26:09.952 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Ла Лига' in game 'Испания' has 22 events
+2021-12-01 18:26:29.558 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Серия А' in game 'Италия' has 18 events
+2021-12-01 18:26:44.270 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Лига 1' in game 'Франция' has 24 events
+2021-12-01 18:27:24.624 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 18:27:37.626 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:27:37.681 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 18:27:37.960 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'IEM' in game 'Counter-Strike' has 9 events
+2021-12-01 18:27:41.399 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Malta Vibes' in game 'Counter-Strike' has 5 events
+2021-12-01 18:27:46.078 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Funspark ULTI EU' in game 'Counter-Strike' has 1 events
+2021-12-01 18:27:46.337 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC EEU Division 1' in game 'Dota 2' has 11 events
+2021-12-01 18:27:52.503 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC WEU Division 1' in game 'Dota 2' has 7 events
+2021-12-01 18:28:02.055 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'DPC CN Division 1' in game 'Dota 2' has 11 events
+2021-12-01 18:28:23.590 | DEBUG    | modules.parser.parimatch:parse_tournaments:152 - Скролл остановлен
+2021-12-01 18:28:43.796 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:28:44.252 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Регулярный сезон' in game 'КХЛ' has 21 events
+2021-12-01 18:28:51.117 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Регулярный сезон' in game 'NHL' has 16 events
+2021-12-01 18:28:54.117 | DEBUG    | __main__:<module>:301 - Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports
+2021-12-01 18:28:54.910 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:28:55.806 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:28:56.727 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-01/'
+2021-12-01 18:28:59.614 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:05.469 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:10.414 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:16.318 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:20.332 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:24.124 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:28.329 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:31.878 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:36.230 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:41.005 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:43.140 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-01/'
+2021-12-01 18:29:45.483 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://cyber.sports.ru/cs/match/2021-12-02/'
+2021-12-01 18:29:47.487 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:29:49.114 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:29:50.992 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:29:52.963 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:29:54.453 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-02/'
+2021-12-01 18:29:55.767 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:29:57.825 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:29:59.984 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:30:01.933 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-02/'
+2021-12-01 18:30:03.760 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-03/'
+2021-12-01 18:30:04.840 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-03/'
+2021-12-01 18:30:06.809 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:30:10.760 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:30:11.563 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:30:12.241 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:30:13.305 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:30:14.105 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:30:14.934 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:30:16.875 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:30:21.226 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-04/'
+2021-12-01 18:30:25.175 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-04/'
+2021-12-01 18:30:27.543 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:30:32.034 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:30:39.423 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:30:46.208 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:30:51.727 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:30:55.825 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/hockey/match/2021-12-05/'
+2021-12-01 18:30:57.637 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-05/'
+2021-12-01 18:31:05.457 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-06/'
+2021-12-01 18:31:07.128 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://cyber.sports.ru/dota2/match/2021-12-07/'
+2021-12-01 18:31:08.485 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:31:09.946 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:31:11.140 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:31:12.003 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-07/'
+2021-12-01 18:31:12.943 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:31:13.837 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:31:14.491 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-08/'
+2021-12-01 18:31:15.291 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:16.192 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:16.827 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:17.721 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:18.718 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:19.632 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:20.403 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:21.664 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:24.711 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:27.448 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:29.119 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-09/'
+2021-12-01 18:31:31.275 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-10/'
+2021-12-01 18:31:34.621 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:31:40.967 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:31:45.071 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-11/'
+2021-12-01 18:31:48.615 | DEBUG    | modules.parser.sports_ru:parse:16 - Начинаю парсить 'https://www.sports.ru/football/match/2021-12-12/'
+2021-12-01 18:31:50.489 | DEBUG    | __main__:<module>:303 - Закончился поиск связей событий с событиями на sports. Начинается проверка на окончание событий
+2021-12-01 18:31:50.495 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/tricked-esports-dynamo-eclot-2021-12-01/'
+2021-12-01 18:31:51.010 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/tricked-esports-dynamo-eclot-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Dynamo Eclot', 'Tricked eSports']}
+2021-12-01 18:31:51.021 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/nemiga-gaming-astralis-talent-2021-12-01/'
+2021-12-01 18:31:51.463 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/nemiga-gaming-astralis-talent-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Astralis Talent', 'Nemiga Gaming']}
+2021-12-01 18:31:51.466 | DEBUG    | modules.parser.sports_ru:parse_event:99 - Начинаю парсить страницу 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/'
+2021-12-01 18:31:51.753 | DEBUG    | modules.parser.sports_ru:parse_event:132 - Парсинг страницы 'https://cyber.sports.ru/cs/match/eternal-fire-ecstatic-2021-12-01/' завершен. Возвращено: {'status': ' завершен ', 'teams': ['Eternal Fire', 'Ecstatic']}
+2021-12-01 18:31:51.758 | DEBUG    | __main__:<module>:307 - Проверка на окончание событий завершена. Жду 300c. до следующего цикла
+2021-12-01 18:32:52.948 | DEBUG    | modules.parser.ABC:__init__:19 - Значение параметра DEBUG: True
+2021-12-01 18:32:52.951 | DEBUG    | modules.parser.ABC:__init__:21 - Запуск страницы браузера FireFox
+2021-12-01 18:33:05.385 | DEBUG    | modules.parser.ABC:__init__:92 - Инициализация парсера https://www.parimatch.ru/ru/
+2021-12-01 18:33:05.495 | DEBUG    | __main__:<module>:299 - Начинается поиск новых событий
+2021-12-01 18:33:05.501 | DEBUG    | modules.parser.parimatch:parse_categories_list:172 - Приступаю к загрузке страницы 'https://www.parimatch.ru/ru/'
+2021-12-01 18:33:25.021 | INFO     | modules.parser.parimatch:parse_categories_list:178 - Страница 'https://www.parimatch.ru/ru/' загружена
+2021-12-01 18:33:25.026 | DEBUG    | modules.parser.parimatch:parse_categories_list:181 - Приступаю к поиску видов спорта
+2021-12-01 18:34:02.185 | INFO     | modules.parser.parimatch:parse_categories_list:194 - Найдено 23 видов спорта, среди них: Футбол, Киберспорт, Хоккей, Баскетбол, Теннис, Настольный теннис, Волейбол, UFC, Гандбол, Пляжный волейбол, Футзал, Американский футбол, Хоккей с мячом, Авто мото, Бадминтон, Биатлон, Бокс, Водное поло, Крикет, MMA, Регби, Дартс, Снукер
+2021-12-01 18:34:15.753 | DEBUG    | modules.parser.parimatch:parse_tournaments:127 - Активировал фильтр только популярных турниров
+2021-12-01 18:34:15.927 | DEBUG    | modules.parser.parimatch:parse_tournaments:133 - Соревнований слишком много, включаю механизм скролла
+2021-12-01 18:34:17.014 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига чемпионов УЕФА' has 16 events
+2021-12-01 18:34:21.210 | DEBUG    | modules.parser.parimatch:get_data_about_event:81 - Tournament 'Групповой этап' in game 'Лига Европы УЕФА' has 16 events
