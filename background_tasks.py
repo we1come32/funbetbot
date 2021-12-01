@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import time
 
 import loguru
@@ -16,20 +17,21 @@ from modules.parser import sports_ru
 from core.telegram.bot import bot
 
 
+new_line = "\n"
+
+
 def get_date(data: list) -> datetime.datetime:
-    event_date: datetime.date | None = None
     if data[0] == 'Завтра':
-        event_date = timezone.now()
-        event_date = datetime.date.today() + datetime.timedelta(days=1)
+        event_date = timezone.now().date() + datetime.timedelta(days=1)
     elif data[0] == 'Сегодня':
-        event_date = datetime.date.today()
+        event_date = timezone.now().date()
     else:
         day, month = map(str, data[0].split())
         day = int(day)
-        year = datetime.date.today().year
+        year = timezone.now().date().year
         months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
         month = months.index(month) + 1
-        if (datetime.date.today().month != month) and (month == 1):
+        if (timezone.now().date().month != month) and (month == 1):
             year += 1
         event_date = datetime.date(year, month, day)
     event_time = map(int, data[1].split(':'))
@@ -114,24 +116,18 @@ def check_new_events() -> None:
                                 TeamName.objects.create(name=teamName, team=team,
                                                         verified=True, primary=True)
                                 teams.append(team)
-                        new_line = "\n"
-                        message_send(
-                            chat_id=config.CHAT_ID,
-                            text="<b>Модерация</b>\n\n"
-                                 "<u>Я нашел новое событие!</u>\n"
-                                 f"- Вид спорта: {categoryName!r}\n"
-                                 f"- Подкатегория: {subcategoryName!r}\n"
-                                 f"- Турнир: {tournamentName!r}\n"
-                                 f"- Команды: {', '.join(event['commands'])}\n"
-                                 f"- Дата: {event_date.strftime('%c')}\n\n"
-                                 "Ставки:"
-                                 f"""  {''.join(
-                                     f"{new_line}  {_} - {__}" 
-                                     for _, __ in zip(event['commands'], [event['pari'][0], event['pari'][-1]])
-                                 )}""",
-                            disable_notification=True,
-                            parse_mode=types.ParseMode.HTML
-                        )
+                        if len(event['pari']) == 3:
+                            if Team.objects.filter(names__name='Ничья').count():
+                                draw = Team.objects.get(names__name='Ничья')
+                            else:
+                                draw = Team.objects.create()
+                                TeamName.objects.create(team=draw, name='Ничья',
+                                                        primary=True, verified=True, denied=False)
+                            teams = [
+                                teams[0],
+                                draw,
+                                teams[1]
+                            ]
                         eventModel = Event.objects.get_or_create(
                             name=' vs '.join(event['commands']),
                             date=event_date,
@@ -141,8 +137,8 @@ def check_new_events() -> None:
                         if eventModel.teams.all().count() == 0:
                             for team, teamBet, flag in zip(
                                     teams,
-                                    [event['pari'][0], event['pari'][-1]],
-                                    [True, False]
+                                    event['pari'],
+                                    [True, *([False] * (len(event['pari']) - 1))]
                             ):
                                 TeamEvent.objects.create(team=team, first=flag,
                                                          event=eventModel, bet=teamBet)
@@ -153,14 +149,12 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
         if game['date'] == '—':
             continue
         game.update(tournament=tournamentName)
-        flag = False
         for team in game['teams']:
             _ = TeamName.objects.filter(name=team, verified=True,
                                         team__events__event__tournament=event.tournament)
             if len(_) == 0:
-                flag = True
                 banWords = ['esports', 'team', 'gaming', 'мхк', 'or', 'спартак', 'динамо', 'сити', 'арсенал',
-                            'юнайтед', 'цска', 'реал', 'атлетико', 'in', 'in', 'u-19', 'u-20', 'вест', 'локомотив',
+                            'юнайтед', 'цска', 'реал', 'in', 'in', 'u-19', 'u-20', 'вест', 'локомотив',
                             'esport', 'of', ]
                 _flag = True
                 question: models.Q | None = None
@@ -175,7 +169,6 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
                     _teams = TeamName.objects.filter(question, verified=True,
                                                      team__events__event__tournament=event.tournament)
                 except TypeError:
-                    print(team)
                     continue
                 _teams_keys = {}
                 if len(_teams):
@@ -190,7 +183,6 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
                                     InlineKeyboardButton(text="❌", callback_data="moderation.deny"),
                                 ]
                             ])
-                            new_line = '\n'
                             message: Message = message_send(
                                 chat_id=config.CHAT_ID,
                                 text="<b>Модерация</b>\n\n"
@@ -228,8 +220,30 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
         _ = teams[0].events.filter(event__teams__team=teams[1])
         if len(set(_)) == 1:
             editEvent: TeamEvent = _[0]
-            editEvent.event.sports_ru_link = game['url']
-            editEvent.event.save()
+            if editEvent.event.sports_ru_link == '':
+                message_send(
+                    chat_id=config.CHANNEL_ID,
+                    text="<b>Новое событие!</b>\n"
+                         f"- Вид спорта: {editEvent.event.tournament.subcategory.category.name!r}\n"
+                         f"- Подкатегория: {editEvent.event.tournament.subcategory.name!r}\n"
+                         f"- Турнир: {editEvent.event.tournament.name!r}\n"
+                         f"- Дата: {editEvent.event.start_time.strftime('%c')}\n\n"
+                         "Коэффициенты:"
+                         f"""  {''.join(
+                             f"{new_line}  {_}" 
+                             for _ in editEvent.event.teams.all()
+                         )}""",
+                    disable_notification=True,
+                    parse_mode=types.ParseMode.HTML,
+                    reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
+                        InlineKeyboardButton(text='Перейти к боту', url='https://t.me/virtualbetbot'),
+                    ], [
+                        InlineKeyboardButton(text='🔗 PariMatch', url=editEvent.event.parimatch_link),
+                        InlineKeyboardButton(text='🔗 Sports.Ru', url=game['url']),
+                    ]])
+                )
+                editEvent.event.sports_ru_link = game['url']
+                editEvent.event.save()
 
 
 def check_event_links() -> None:
@@ -260,24 +274,33 @@ def check_event_links() -> None:
 def check_old_events() -> None:
     events = Event.objects.filter(~models.Q(sports_ru_link='') &
                                   models.Q(start_time__lte=timezone.now()))
-    print(events)
     for event in events:
         data = sports_ru.parse_event(event.sports_ru_link)
         data.update(url=event.sports_ru_link)
-        print(data)
+        if data['status'] == 'Завершен':
+            matchboard = data['matchboard']
+            if matchboard[0] != matchboard[1]:
+                event.win(
+                    event.teams.get(
+                        ~models.Q(team__names__name='Ничья'),
+                        first=matchboard[0] != matchboard[1]
+                    )
+                )
+            else:
+                event.draw()
 
 
 if __name__ == "__main__":
-    # pm = PariMatchLoader()
+    pm = PariMatchLoader()
     while True:
         start_time = time.time()
         loguru.logger.debug(f"Начинается поиск новых событий")
-        # check_new_events()
+        check_new_events()
         loguru.logger.debug(f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
         check_event_links()
         loguru.logger.debug(f"Закончился поиск связей событий с событиями на sports. "
                             f"Начинается проверка на окончание событий")
         check_old_events()
         t = 300 + start_time - time.time()
-        loguru.logger.debug(f"Проверка на окончание событий завершена. Жду {max(t, 500)}c. до следующего цикла")
-        time.sleep(max(300 + start_time - time.time(), 500))
+        loguru.logger.debug(f"Проверка на окончание событий завершена. Жду {max(t, 300)}c. до следующего цикла")
+        time.sleep(max(300 + start_time - time.time(), 300))

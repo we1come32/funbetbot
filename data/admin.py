@@ -4,7 +4,7 @@ from . import models
 
 @admin.register(models.TGUser)
 class TGUserModelAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "status", 'balance')
+    list_display = ("id", "name", "status", 'balance', 'get_bets',)
     list_filter = ("admin",)
     search_fields = ("id", "name",)
     fieldsets = (
@@ -17,14 +17,18 @@ class TGUserModelAdmin(admin.ModelAdmin):
         }),
     )
 
+    @admin.display(description='Кол-во ставок')
+    def get_bets(self, a) -> int:
+        return a.bets.filter(is_active=True, payed=False).count()
+
 
 @admin.register(models.Category)
 class CategoryModelAdmin(admin.ModelAdmin):
     list_display = ("name", "count_of",)
     search_fields = ("name",)
 
-    @staticmethod
-    def count_of(a):
+    @admin.display(description="Количество категорий", ordering=True)
+    def count_of(self, a):
         return a.subcategories.all().count()
 
 
@@ -34,8 +38,8 @@ class SubCategoryModelAdmin(admin.ModelAdmin):
     list_filter = ("category",)
     search_fields = ("name",)
 
-    @staticmethod
-    def count_of(a):
+    @admin.display(description="Количество турниров", ordering=True)
+    def count_of(self, a):
         return a.tournaments.all().count()
 
 
@@ -45,8 +49,8 @@ class TournamentModelAdmin(admin.ModelAdmin):
     list_filter = ("subcategory__category", 'subcategory',)
     search_fields = ("name",)
 
-    @staticmethod
-    def count_of(a):
+    @admin.display(description="Количество событий", ordering=True)
+    def count_of(self, a):
         return a.events.all().count()
 
 
@@ -66,13 +70,13 @@ class EventModelAdmin(admin.ModelAdmin):
         }),
     )
 
-    @staticmethod
-    def pm_link(a):
-        return a.parimatch_link != ''
+    @admin.display(description="PM", boolean=True)
+    def pm_link(self, obj):
+        return obj.parimatch_link != ''
 
-    @staticmethod
-    def sports_link(a):
-        return a.sports_ru_link != ''
+    @admin.display(description="SP", boolean=True)
+    def sports_link(self, obj):
+        return obj.sports_ru_link != ''
 
 
 @admin.register(models.TeamEvent)
@@ -83,12 +87,12 @@ class TeamEventModelAdmin(admin.ModelAdmin):
 
 @admin.register(models.Bet)
 class BetModelAdmin(admin.ModelAdmin):
-    list_display = ("user", "win_money", "is_active_status")
-    list_filter = ("team__event", )
+    list_display = ("user", "team", "win_money", "is_active_status")
+    list_filter = ("team__event__tournament", "team__event",)
     search_fields = ("user__id", "user__name__startswith",)
     fieldsets = (
         (None, {
-            'fields': ('user', 'win_money', 'is_active_status')
+            'fields': ('user',)
         }),
         ('Внутренние параметры', {
             'classes': ('collapse',),
@@ -96,13 +100,13 @@ class BetModelAdmin(admin.ModelAdmin):
         }),
     )
 
-    @staticmethod
-    def win_money(self):
-        return self.money * self.value
+    @admin.display(description="Выигрыш")
+    def win_money(self, obj):
+        return int(obj.money * obj.value)
 
-    @staticmethod
-    def is_active_status(self):
-        return self.is_active and not self.payed
+    @admin.display(description="Статус", boolean=True)
+    def is_active_status(self, obj):
+        return obj.is_active and not obj.payed
 
 
 @admin.register(models.Team)

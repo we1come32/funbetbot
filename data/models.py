@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 from django.db import models
 from . import managers
@@ -104,9 +105,11 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.name} (pk={self.pk})"
 
-    def win(self, team: "TeamEvent"):
+    def win(self, team: "TeamEvent") -> bool:
         if self.ended:
             return False
+        self.ended = True
+        self.save()
         teams: list[Team] = self.teams.all()
 
         if team not in teams:
@@ -121,6 +124,9 @@ class Event(models.Model):
                     bet.lose()
         return True
 
+    def draw(self) -> bool:
+        return self.win(self.teams.get(names__name='Ничья'))
+
 
 class Team(models.Model):
     class Meta:
@@ -132,7 +138,7 @@ class Team(models.Model):
         try:
             return str(self.names.get(primary=True))
         except TeamName.DoesNotExist:
-            return ''
+            return 'team'
 
 
 class TeamName(models.Model):
@@ -168,6 +174,13 @@ class TeamEvent(models.Model):
 
     def __str__(self):
         return f"{self.team} - {self.bet}"
+
+    def create_bet(self, money: int, user: TGUser) -> Union["Bet", bool]:
+        if user.balance >= money and Bet.objects.filter(user=user, team=self).count() == 0:
+            user.balance = user.balance - money
+            user.save()
+            return Bet.objects.create(value=self.bet, money=500, user=user, team=self)
+        return False
 
 
 class Bet(models.Model):

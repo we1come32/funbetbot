@@ -6,33 +6,12 @@ from aiogram.dispatcher import FSMContext, filters
 from aiogram.types import KeyboardButton, InlineKeyboardMarkup, Message, InlineKeyboardButton, ReplyKeyboardMarkup
 from aiogram.utils import exceptions
 from aiogram.utils.exceptions import InvalidQueryID
-from aiogram.utils.helper import ListItem, HelperMode, Helper
 
 import config
 from core.telegram import dp, bot
 from data import models
 from utils.decorators import RegisterMessageUser, FixParameterTypes
-
-
-class States(Helper):
-    mode = HelperMode.snake_case
-
-    MENU = ListItem()
-    TYPES = ListItem()
-    GAMES = ListItem()
-    TOURNAMENT = ListItem()
-    MAPS = ListItem()
-    SIDE = ListItem()
-
-
-loop = asyncio.get_event_loop()
-
-
-menuKeyboard = InlineKeyboardMarkup(row_width=2, resize_keyboard=True)
-menuKeyboard.add(InlineKeyboardButton(text='Баланс', callback_data='commands.player.balance'))
-menuKeyboard.add(InlineKeyboardButton(text='Сделать ставку', callback_data='commands.bet'))
-menuKeyboard.add(InlineKeyboardButton(text='Рейтинг', callback_data='commands.rating'))
-menuKeyboard.add(InlineKeyboardButton(text='Настройки', callback_data='commands.player.settings'))
+from .keyboards import *
 
 
 async def team_moderation(message_id: int, flag: bool, call: types.CallbackQuery):
@@ -83,27 +62,26 @@ async def start_function(msg: Message):
         )
 
 
-@dp.message_handler(filters.Text(equals=['меню', 'menu'], ignore_case=True), state='*')
-@dp.message_handler(commands=['menu', 'меню'], state='*')
+@dp.message_handler(filters.Text(equals=['меню', 'menu'], ignore_case=True))
+@dp.message_handler(commands=['menu', 'меню'])
 @FixParameterTypes(Message)
 @RegisterMessageUser
-async def menu(msg: Message, user: models.TGUser, state: FSMContext):
+async def menu(msg: Message, user: models.TGUser):
     global menuKeyboard
-    await state.set_state('menu')
     await msg.answer('Жду вашей ставки', reply_markup=menuKeyboard)
 
 
-@dp.message_handler(filters.Text(equals=['баланс', 'balance'], ignore_case=True), state='*')
+@dp.message_handler(filters.Text(equals=['баланс', 'balance'], ignore_case=True))
 @RegisterMessageUser
-async def balance(user: models.TGUser, state: FSMContext, msg: Message = None, message_id: int = None):
+async def balance(user: models.TGUser, msg: Message = None, message_id: int = None):
     kb = InlineKeyboardMarkup()
     kb.add(InlineKeyboardButton('Сделать ставку', callback_data='commands.bet'))
     await bot.send_message(user.id, f"Ваш баланс: {user.balance} Вирт", reply_markup=kb)
 
 
-@dp.message_handler(filters.Text(equals=['rating', 'рейтинг'], ignore_case=True), state='*')
+@dp.message_handler(filters.Text(equals=['rating', 'рейтинг'], ignore_case=True))
 @RegisterMessageUser
-async def rating(user: models.TGUser, state: FSMContext, msg: Message = None, message_id: int = None):
+async def rating(user: models.TGUser, msg: Message = None, message_id: int = None):
     message = "Рейтинг игроков:\n"
     users: list[models.TGUser] = models.TGUser.objects.filter().order_by('balance').all()
     flag = True
@@ -124,26 +102,17 @@ async def get_id(msg: Message, **kwargs):
     await msg.answer("Your id: {user_id}".format(user_id=msg.from_user.id))
 
 
-@dp.message_handler(commands=['get_state'])
-@RegisterMessageUser
-async def get_id(msg: Message, **kwargs):
-    state = dp.current_state(user=msg.from_user.id)
-    await msg.answer("Your state: {state}".format(state=await state.get_state()))
-
-
 @dp.message_handler(filters.Text(equals=["сделать ставку", "ставку"], ignore_case=True))
 @RegisterMessageUser
-async def get_bet(msg: Message, user: models.TGUser, state: FSMContext):
-    state = dp.current_state(user=msg.from_user.id)
-    await state.set_state('types')
+async def get_bet(msg: Message, user: models.TGUser):
     kb = InlineKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     kb.row(InlineKeyboardButton('Баланс', callback_data='commands.player.balance'))
     await bot.send_message(user.id, "А ок ща", reply_markup=kb)
 
 
-@dp.message_handler(filters.Text(equals=['настройки'], ignore_case=True), state=0)
+@dp.message_handler(filters.Text(equals=['настройки'], ignore_case=True))
 @RegisterMessageUser
-async def player_settings(msg: Message, user: models.TGUser, state: FSMContext):
+async def player_settings(msg: Message, user: models.TGUser):
     await bot.send_message(user.id, "Настройки пока не работают, извините(")
 
 
@@ -180,11 +149,10 @@ async def callback_function(call: types.CallbackQuery):
                 call.from_user.id,
                 text=f'А вот это я точно не знаю что такое. {data[1:]}'
             )
-    await bot.send_message(
-        call.from_user.id,
-        text=f'Извини, я не нашел зарегистрированную функцию, отвечающую за callback-data={call.data!r}'
-    )
+    await bot.send_message(call.from_user.id,
+                           text='Извини, я не нашел зарегистрированную функцию, '
+                                f'отвечающую за callback-data={call.data!r}')
 
-loguru.logger.debug("Функции в Dispatcher зарегистрировано "
+loguru.logger.debug("Функции в Dispatcher зарегистрировано: "
                     f"Callback handlers - {len(dp.callback_query_handlers.handlers)}, "
                     f"Message handler - {len(dp.message_handlers.handlers)}")

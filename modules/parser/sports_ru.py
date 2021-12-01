@@ -96,18 +96,38 @@ def parse(url: str) -> dict[str, list]:
 
 
 def parse_event(url: str) -> dict:
-    print(url)
+    loguru.logger.debug(f'Начинаю парсить страницу {url!r}')
     response = requests.get(url)
     html = response.text
     base_url = url.split('.ru')[0] + '.ru'
     soup = BeautifulSoup(html, features='html.parser')
     event = soup.find('div', class_='match-summary')
-    teams = [_.find('div', class_='name').text for _ in soup.find_all('div', class_='match-summary__team')]
-    stateObject = soup.find('div', class_='match-summary__state')
-    stateStatus = stateObject.find('span', class_='match-summary__state-status').text
-    stateMatchBoard = [int(_.text) for _ in stateObject.find_all('span', class_='matchboard__card-game')]
-    return {
-        'status': stateStatus,
-        'teams': teams,
-        'matchboard': stateMatchBoard
-    }
+    if event is not None:
+        teams = [
+            _.find('span', class_='match-summary__team-name').text
+            for _ in event.find_all('div', class_='match-summary__team')
+        ]
+        stateObject = event.find('div', class_='match-summary__state')
+        stateStatus = stateObject.find('span', class_='match-summary__state-status').text
+        data = {
+            'status': stateStatus.capitalize(),
+            'teams': teams,
+        }
+        if stateStatus == 'Завершен':
+            data.update(matchboard=[int(_.text) for _ in stateObject.find_all('span', class_='matchboard__card-game')])
+    else:
+        event = soup.find('div', class_='two-commands')
+        teams = [
+            _.find('span', itemprop='name').text
+            for _ in event.find_all('div', class_='command')
+        ]
+        stateObject = event.find('div', class_='game-info')
+        stateStatus = stateObject.find('div', class_='js-match-status').text
+        data = {
+            'status': stateStatus.capitalize(),
+            'teams': teams,
+        }
+        if stateStatus == 'завершен':
+            data.update(matchboard=list(map(int, stateObject.find('div', class_='js-match-score').text.split(" : "))))
+    loguru.logger.debug(f'Парсинг страницы {url!r} завершен. Возвращено: {data!r}')
+    return data

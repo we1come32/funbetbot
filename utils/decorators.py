@@ -32,8 +32,12 @@ class RegisterMessageUser:
         except IndexError:
             await msg.answer('Произошла какая-то ошибка, зарегистрируйтесь заново: /start')
             return None
-        state = self._dp.current_state(user=msg.from_user.id)
-        return await self._fun(msg=msg, user=user, state=state)
+        # state = self._dp.current_state(user=msg.from_user.id)
+        return await self._fun(
+            msg=msg,
+            user=user,
+            # state=state
+        )
 
 
 class FixParameterTypes:
