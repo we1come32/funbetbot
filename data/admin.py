@@ -87,7 +87,7 @@ class TeamEventModelAdmin(admin.ModelAdmin):
 
 @admin.register(models.Bet)
 class BetModelAdmin(admin.ModelAdmin):
-    list_display = ("user", "team", "win_money", "is_active_status")
+    list_display = ("get_id", "user", "team", "win_money", "is_active_status")
     list_filter = ("team__event__tournament", "team__event",)
     search_fields = ("user__id", "user__name__startswith",)
     fieldsets = (
@@ -99,6 +99,10 @@ class BetModelAdmin(admin.ModelAdmin):
             'fields': ('value', 'money'),
         }),
     )
+
+    @admin.display(description="ID")
+    def get_id(self, obj):
+        return obj.pk
 
     @admin.display(description="Выигрыш")
     def win_money(self, obj):
