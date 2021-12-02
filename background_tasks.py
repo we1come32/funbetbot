@@ -228,7 +228,7 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
             if editEvent.event.sports_ru_link == '':
                 message_send(
                     chat_id=config.CHANNEL_ID,
-                    text="<b>Новое событие!</b>\n"
+                    text="🔥  <b>Новое событие!</b>\n"
                          f"- Вид спорта: {editEvent.event.tournament.subcategory.category.name!r}\n"
                          f"- Подкатегория: {editEvent.event.tournament.subcategory.name!r}\n"
                          f"- Турнир: {editEvent.event.tournament.name!r}\n"
