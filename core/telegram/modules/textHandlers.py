@@ -12,7 +12,6 @@ from data import models
 from utils.decorators import RegisterMessageUser, FixParameterTypes
 from .keyboards import *
 
-
 cache = {}
 
 
@@ -91,7 +90,8 @@ async def menu(msg: Message, user: models.TGUser, **kwargs):
 @dp.message_handler(commands=['balance', 'баланс'])
 @RegisterMessageUser
 async def balance(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
-    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
     if models.Bet.objects.filter(user=user, is_active=True, payed=False).count() == 0 and user.balance <= 500:
         kb.row(InlineKeyboardButton('➕ Добавить валюту', callback_data='commands.player.balance.add'))
     await bot.send_message(user.id, f"Ваш баланс: 💴 {user.balance}", reply_markup=kb)
@@ -100,7 +100,8 @@ async def balance(user: models.TGUser, msg: Message = None, message_id: int = No
 @RegisterMessageUser
 @dp.message_handler(commands=['add_balance', 'добавить_баланс'])
 async def addBalance(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
-    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
     if models.Bet.objects.filter(user=user, is_active=True, payed=False).count() == 0 and user.balance <= 500:
         user.balance += 500
         user.save()
@@ -108,7 +109,7 @@ async def addBalance(user: models.TGUser, msg: Message = None, message_id: int =
     else:
         message = ""
     await bot.send_message(user.id, f"{message}Ваш баланс: 💴 {user.balance}", reply_markup=kb,
-                           parse_mode=types.ParseMode.HTML,)
+                           parse_mode=types.ParseMode.HTML, )
 
 
 @dp.message_handler(commands=['rating', 'рейтинг'])
@@ -122,7 +123,7 @@ async def rating(user: models.TGUser, msg: Message = None, message_id: int = Non
         _user = _user.values.get('username', f'user{_.id}')
         if _.id == user.id:
             flag = False
-        message += f"\n{number+1}) {_user} - {_.balance}"
+        message += f"\n{number + 1}) {_user} - {_.balance}"
     if flag:
         message += f"\n\nВаше место в рейтинге - {1 + users.index(user)}"
     await bot.send_message(user.id, message, reply_markup=menuKeyboard)
@@ -152,7 +153,7 @@ def get_info(item: models.Bet, active: bool = False) -> str:
            f"- Событие: <i>{item.team.event.name!r}</i>\n" \
            f"- Исход на <i>{team}</i> с коэфициентом {item.value}\n" \
            f"- Сумма ставки: {item.money}\n" \
-           f"- Возможный выигрыш: {int(item.money*item.value)}\n" \
+           f"- Возможный выигрыш: {int(item.money * item.value)}\n" \
            f"- Дата события: {item.team.event.start_time}\n" \
            f"- Дата создания: {item.created_date}</code>\n\n"
 
@@ -176,12 +177,12 @@ async def bets(user: models.TGUser, msg: Message = None, message_id: int = None,
     else:
         header = ""
         message = "Ставки от вашего имени отсутствуют.\nСделаем ставку?"
-    await bot.send_message(user.id, header+message, reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[
-                    [InlineKeyboardButton('💴 Баланс', callback_data='commands.player.balance')],
-                    [InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')],
-                ]
-            ), parse_mode=types.ParseMode.HTML,)
+    await bot.send_message(user.id, header + message, reply_markup=InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton('💴 Баланс', callback_data='commands.player.balance')],
+            [InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')],
+        ]
+    ), parse_mode=types.ParseMode.HTML, )
 
 
 @dp.message_handler(commands=['get_id'])
@@ -227,20 +228,26 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         kb.row(InlineKeyboardButton("◀️ Назад",
                                     callback_data=f'commands.bet.{category}'))
     elif event is None:
-        text = "Выберите событие:"
+        text = "Выберите событие:\n" \
+               "✅ - вы уже делали ставку на это событие"
         subcategories = models.Tournament.objects.get(pk=tournament).events.filter(
             ~models.models.Q(sports_ru_link="") & ~models.models.Q(parimatch_link=""),
             start_time__gte=timezone.now(),
             ended=False)
         for tmpSubCategory in subcategories:
-            kb.row(InlineKeyboardButton(tmpSubCategory.name.upper(),
-                                        callback_data=f'commands.bet.{category}.{subcategory}.{tournament}.'
-                                                      f'{tmpSubCategory.pk}'))
+            kb.row(InlineKeyboardButton(
+                ("✅  " if models.Bet.objects.filter(
+                    user=user,
+                    team__event=tmpSubCategory
+                ).count() else "") + tmpSubCategory.name.upper() ,
+                callback_data=f'commands.bet.{category}.{subcategory}.{tournament}.'
+                              f'{tmpSubCategory.pk}'
+            ))
         kb.row(InlineKeyboardButton("◀️ Назад",
                                     callback_data=f'commands.bet.{category}.{subcategory}'))
     elif team is None:
         _event: models.Event = models.Event.objects.get(pk=event)
-        text = "<u>Выберите победителя встречи</u>\n\n"\
+        text = "<u>Выберите победителя встречи</u>\n\n" \
                "Информация по событию:\n\n" \
                f"- Вид спорта: {_event.tournament.subcategory.category.name!r}\n" \
                f"- Подкатегория: {_event.tournament.subcategory.name!r}\n" \
@@ -286,7 +293,7 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
             return
         try:
             money = float(msg.text.replace(',', '.'))
-            if money - int(money*100)/100:
+            if money - int(money * 100) / 100:
                 raise ValueError
             money = int(money)
             if user.balance < money:
@@ -316,7 +323,7 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
                 user.id,
                 f"✅ <b>Ставка#{bet.pk} успешно сделана!</b>\n\n"
                 f"Исход на {team} с коэфициентом {bet.value}\n"
-                f"Возможный выигрыш <b>💴 {int(bet.money*bet.value)}</b>\n\n"
+                f"Возможный выигрыш <b>💴 {int(bet.money * bet.value)}</b>\n\n"
                 f"<code>Подробнее:\n" + get_info(bet, active=True),
                 parse_mode=types.ParseMode.HTML,
             )

@@ -18,7 +18,7 @@
 Устанавливать бота для его использования нет необходимости: достаточно <a href="https://t.me/virtualbetbot">существующего 
 бота Telegram</a>
 
-1) Установить Python 3.8+
+1) Установить Python 3.10+
 2) Установить pip - менеджер пакетов Python
 3) Создать виртуальное окружение: `python3 -m venv myvenv .` (для Windows `python -m venv myvenv .`) (точка обязательна)
 4) Активировать виртуальное окружение `source ./myvenv/bin/Activate` (для Windows `./myvenv/Scripts/activate.bat`)

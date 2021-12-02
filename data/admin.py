@@ -82,7 +82,7 @@ class EventModelAdmin(admin.ModelAdmin):
 @admin.register(models.TeamEvent)
 class TeamEventModelAdmin(admin.ModelAdmin):
     list_display = ("team",)
-    search_fields = ("team__parimatch_name","team__sports_name",)
+    search_fields = ("team__names__name",)
 
 
 @admin.register(models.Bet)
