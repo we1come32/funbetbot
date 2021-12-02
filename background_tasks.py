@@ -285,6 +285,11 @@ def check_old_events() -> None:
             event.win(win_team)
 
 
+def check_values_events() -> None:
+    events = Event.objects.filter(~models.Q(sports_ru_link=''),
+                                  start_time__gte=timezone.now())
+
+
 if __name__ == "__main__":
     pm = PariMatchLoader()
     while True:
