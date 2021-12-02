@@ -1,5 +1,6 @@
 import asyncio
 import time
+from typing import Any
 
 import loguru
 import pytz
@@ -12,7 +13,6 @@ import utils.setup_django
 from modules.parser.parimatch import PariMatchLoader
 from data.models import *
 from modules.parser import sports_ru
-from core.telegram.bot import bot
 
 
 new_line = "\n"
@@ -74,6 +74,13 @@ allow_categories = set_cache_keys({
     'футбол': 'https://www.sports.ru/football/match/{year}-{month:0>2}-{day:0>2}/',
     'хоккей': 'https://www.sports.ru/hockey/match/{year}-{month:0>2}-{day:0>2}/',
 })
+
+
+def run(func) -> Any:
+    if asyncio.coroutines.iscoroutine(func):
+        loop = asyncio.get_event_loop()
+        return loop.run_until_complete(func)
+    return False
 
 
 def check_new_events() -> None:
@@ -268,6 +275,7 @@ def check_event_links() -> None:
 
 
 def check_old_events() -> None:
+    global bot
     events = Event.objects.filter(~models.Q(sports_ru_link='') &
                                   models.Q(start_time__lte=timezone.now()),
                                   ended=False)
@@ -282,7 +290,7 @@ def check_old_events() -> None:
                 win_team = event.teams.get(team__names__name=data['teams'][0])
             else:
                 win_team = event.teams.get(team__names__name=data['teams'][1])
-            event.win(win_team)
+            run(event.win(win_team, bot=bot))
 
 
 def check_values_events() -> None:
@@ -294,17 +302,23 @@ def check_values_events() -> None:
 
 if __name__ == "__main__":
     pm = PariMatchLoader()
+    bot = aiogram.Bot(token=config.ACCESS_TOKEN)
     while True:
-        start_time = time.time()
-        loguru.logger.debug(f"Начинается поиск новых событий")
-        check_new_events()
-        loguru.logger.debug(f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
-        check_event_links()
-        loguru.logger.debug(f"Закончился поиск связей событий с событиями на sports. "
-                            f"Приступаю к обновлению коэффициентов")
-        # check_values_events()
-        loguru.logger.debug(f"Закончил обновление коэффициентов. Начинается проверка на окончание событий")
-        check_old_events()
-        t = 300 + start_time - time.time()
-        loguru.logger.debug(f"Проверка на окончание событий завершена. Жду {max(t, 300)}c. до следующего цикла")
-        time.sleep(max(300 + start_time - time.time(), 300))
+        try:
+            start_time = time.time()
+            loguru.logger.debug(f"Начинается поиск новых событий")
+            check_new_events()
+            loguru.logger.debug(f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
+            check_event_links()
+            loguru.logger.debug(f"Закончился поиск связей событий с событиями на sports. "
+                                f"Приступаю к обновлению коэффициентов")
+            # check_values_events()
+            loguru.logger.debug(f"Закончил обновление коэффициентов. Начинается проверка на окончание событий")
+            check_old_events()
+            t = 300 + start_time - time.time()
+            loguru.logger.debug(f"Проверка на окончание событий завершена. Жду {max(t, 300)}c. до следующего цикла")
+            time.sleep(max(300 + start_time - time.time(), 300))
+        except KeyboardInterrupt:
+            exit()
+        except:
+            pass

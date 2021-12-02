@@ -19,7 +19,7 @@ async def team_moderation(message_id: int, flag: bool, call: types.CallbackQuery
     try:
         await bot.delete_message(chat_id=config.CHAT_ID, message_id=message_id)
     except exceptions.BadRequest:
-        return
+        return True
     application: models.models.QuerySet = models.TeamModeration.objects.filter(
         message_id=message_id)
     if len(application):
@@ -89,17 +89,16 @@ async def menu(msg: Message, user: models.TGUser, **kwargs):
 
 @dp.message_handler(commands=['balance', 'баланс'])
 @RegisterMessageUser
-async def balance(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
+async def balance(msg: Message = None, user: models.TGUser = None, message_id: int = None, **kwargs):
     kb = InlineKeyboardMarkup(
-        inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
-    if models.Bet.objects.filter(user=user, is_active=True, payed=False).count() == 0 and user.balance <= 500:
-        kb.row(InlineKeyboardButton('➕ Добавить валюту', callback_data='commands.player.balance.add'))
+        inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')],
+                         [InlineKeyboardButton('➕ Добавить валюту', callback_data='commands.player.balance.add')]])
     await bot.send_message(user.id, f"Ваш баланс: 💴 {user.balance}", reply_markup=kb)
 
 
-@RegisterMessageUser
 @dp.message_handler(commands=['add_balance', 'добавить_баланс'])
-async def addBalance(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
+@RegisterMessageUser
+async def addBalance(user: models.TGUser = None, msg: Message = None, message_id: int = None, **kwargs):
     kb = InlineKeyboardMarkup(
         inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
     if models.Bet.objects.filter(user=user, is_active=True, payed=False).count() == 0 and user.balance <= 500:
@@ -107,95 +106,57 @@ async def addBalance(user: models.TGUser, msg: Message = None, message_id: int =
         user.save()
         message = "❕ Баланс пополнен на 💴 500\n"
     else:
-        message = ""
+        message = "⛔️ Условия пополнения не соблюдаются\n"
     await bot.send_message(user.id, f"{message}Ваш баланс: 💴 {user.balance}", reply_markup=kb,
                            parse_mode=types.ParseMode.HTML, )
 
 
 @dp.message_handler(commands=['rating', 'рейтинг'])
 @RegisterMessageUser
-async def rating(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
-    message = "Рейтинг игроков:\n"
-    users: list[models.TGUser] = models.TGUser.objects.filter().order_by('-balance').all()
+async def rating(msg: Message = None, user: models.TGUser = None, message_id: int = None, **kwargs):
+    message = "<b>🔥 Рейтинг игроков:</b>\n"
+    users: list[models.TGUser] = models.TGUser.objects.filter(status=True).order_by('-rating')
     flag = True
-    for number, _ in enumerate(users[:10]):
-        _user = await bot.get_chat(_.id)
-        _user = _user.values.get('username', f'user{_.id}')
-        if _.id == user.id:
+    for number, _user in enumerate(users[:10]):
+        nicknameUser = _user.name if _user.name != '' else f"user{_user.id}"
+        if _user.id == user.id:
             flag = False
-        if _user == user:
-            message += f"\n<b>{number + 1}) {_user} - {_.balance}</b>"
+            message += f"\n<b>{number + 1}) {nicknameUser} -  ⚜️ {_user.rating}</b> 🔥"
         else:
-            message += f"\n{number + 1}) {_user} - {_.balance}"
+            message += f"\n{number + 1}) {nicknameUser} -  ⚜️ {_user.rating}"
     if flag:
-        users: list[models.TGUser] = models.TGUser.objects.filter().order_by('-balance').all()
-        for number, _user in enumerate(users):
-            if _user == user:
-                message += f"\n\nВаше место в рейтинге - {1 + number}"
-                break
-    await bot.send_message(user.id, message, reply_markup=menuKeyboard)
-
-
-def get_info(item: models.Bet, active: bool = False) -> str:
-    team: str = item.team.team.get_name()
-    if team != 'Ничья':
-        team = f"победу команды {team}"
-    else:
-        team = 'ничью'
-    if active:
-        if not item.is_active or item.payed:
-            return ""
-    _header = f"Ставка#{item.pk}"
-    if item.is_active is False:
-        _header += " [Отменён пользователем]"
-    if item.payed:
-        if item.winner:
-            _header += " [Ставка выиграна] [Оплачено]"
-        else:
-            _header += " [Ставка проиграна]"
-    return f"<code>{_header}\n" \
-           f"- Вид спорта: <i><u>{item.team.event.tournament.subcategory.category.name.upper()}</u></i>\n" \
-           f"- Подкатегория: <i><u>{item.team.event.tournament.subcategory.name.upper()}</u></i>\n" \
-           f"- Турнир: <i><u>{item.team.event.tournament.name.upper()}</u></i>\n" \
-           f"- Событие: <i>{item.team.event.name!r}</i>\n" \
-           f"- Исход на <i>{team}</i> с коэфициентом {item.value}\n" \
-           f"- Сумма ставки: {item.money}\n" \
-           f"- Возможный выигрыш: {int(item.money * item.value)}\n" \
-           f"- Дата события: {item.team.event.start_time}\n" \
-           f"- Дата создания: {item.created_date}</code>\n\n"
+        message += f"\n\nВаше место в рейтинге - {1 + list(users).index(user)}"
+    await bot.send_message(user.id, message, reply_markup=menuKeyboard, parse_mode=types.ParseMode.HTML)
 
 
 @dp.message_handler(commands=['bets', 'ставки'])
 @RegisterMessageUser
-async def bets(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
+async def bets(msg: Message = None, user: models.TGUser = None, message_id: int = None, **kwargs):
     header = "<b>Ваши ставки:</b>\n\n"
     message = ""
     queryBets = models.Bet.objects.filter(user=user).order_by('-pk')
     for bet in queryBets:
-        message += get_info(bet)
+        message += bet.get_info()
     if bets:
         file = StringIO(message.replace('<code>', '').replace('</code>', '').replace('<u>', '').replace('</u>', '')
-                        .replace('<i>', '').replace('</i>', ''))
+                        .replace('<i>', '').replace('</i>', '').replace('<b>', '').replace('</b>', ''))
         file.name = f'bets_{user}_{timezone.now()}.txt'
         await bot.send_document(user.id, file)
         message = ""
         for bet in queryBets:
-            message += get_info(bet, active=True)
+            message += bet.get_info(active=True)
     else:
         header = ""
         message = "Ставки от вашего имени отсутствуют.\nСделаем ставку?"
-    await bot.send_message(user.id, header + message, reply_markup=InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton('💴 Баланс', callback_data='commands.player.balance')],
-            [InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')],
-        ]
-    ), parse_mode=types.ParseMode.HTML, )
-
-
-@dp.message_handler(commands=['get_id'])
-@RegisterMessageUser
-async def get_id(msg: Message, **kwargs):
-    await msg.answer("Your Telegram ID: `{user_id}`".format(user_id=msg.from_user.id))
+    try:
+        await bot.send_message(user.id, header + message, reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton('💴 Баланс', callback_data='commands.player.balance')],
+                [InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')],
+            ]
+        ), parse_mode=types.ParseMode.HTML, )
+    except Exception as e:
+        print(e)
 
 
 @dp.message_handler(commands=['make_bet', 'сделать_ставку'])
@@ -208,7 +169,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
     event = kwargs.get('event', None)
     team = kwargs.get('team', None)
     if category is None:
-        text = "Выберите категорию событий"
+        text = "❗️ Выберите категорию событий"
         categories = models.Category.objects.all()
         for tmpCategory in categories:
             if tmpCategory.subcategories.filter(tournaments__events__ended=False).count():
@@ -217,7 +178,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         kb.row(InlineKeyboardButton("◀️ Назад в меню",
                                     callback_data=f'commands.menu'))
     elif subcategory is None:
-        text = "Выберите подкатегорию событий"
+        text = "❗️Выберите подкатегорию событий"
         subcategories = models.Category.objects.get(pk=category).subcategories.all()
         for tmpSubCategory in subcategories:
             if tmpSubCategory.tournaments.filter(events__ended=False).count():
@@ -226,7 +187,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         kb.row(InlineKeyboardButton("◀️ Назад",
                                     callback_data=f'commands.bet'))
     elif tournament is None:
-        text = "Выберите турнир"
+        text = "❗️Выберите турнир"
         subcategories = models.SubCategory.objects.get(pk=subcategory).tournaments.all()
         for tmpSubCategory in subcategories:
             if tmpSubCategory.events.filter(ended=False).count():
@@ -235,7 +196,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         kb.row(InlineKeyboardButton("◀️ Назад",
                                     callback_data=f'commands.bet.{category}'))
     elif event is None:
-        text = "Выберите событие:\n" \
+        text = "❗️ Выберите событие:\n" \
                "✅ - вы уже делали ставку на это событие"
         subcategories = models.Tournament.objects.get(pk=tournament).events.filter(
             ~models.models.Q(sports_ru_link="") & ~models.models.Q(parimatch_link=""),
@@ -254,7 +215,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
                                     callback_data=f'commands.bet.{category}.{subcategory}'))
     elif team is None:
         _event: models.Event = models.Event.objects.get(pk=event)
-        text = "<u>Выберите победителя встречи</u>\n\n" \
+        text = "❗️ <u>Выберите победителя встречи</u>\n\n" \
                "Информация по событию:\n\n" \
                f"- Вид спорта: {_event.tournament.subcategory.category.name!r}\n" \
                f"- Подкатегория: {_event.tournament.subcategory.name!r}\n" \
@@ -274,30 +235,46 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         text = f"Введите сумму ставки.\nНапомню, у вас сейчас 💴 {user.balance}:"
         cache[user.id] = kwargs
         await bot.send_message(user.id, text, reply_markup=ForceReply.create(selective=True))
-        return
-    try:
-        message_id = msg.message.message_id
-        await bot.delete_message(user.id, message_id)
-    except AttributeError:
-        pass
+        return True
     await bot.send_message(user.id, text, reply_markup=kb, parse_mode=types.ParseMode.HTML)
 
 
 @dp.message_handler(commands=['settings', 'настройки'])
 @RegisterMessageUser
-async def player_settings(msg: Message, user: models.TGUser, **kwargs):
-    await bot.send_message(user.id, "Настройки пока не работают, извините(")
+async def player_settings(msg: Message, user: models.TGUser, params: list = None, **kwargs):
+    keyboard = InlineKeyboardMarkup()
+    answer = {'chat_id': user.id, 'parse_mode': types.ParseMode.HTML, 'text': '<b>Настройки</b>\n\n'}
+    settings = user.get_settings()
+    match params:
+        case None | []:
+            keyboard.row(InlineKeyboardButton(('🟢' if settings.news else '🔴')+" Подписка на новости",
+                                              callback_data='commands.player.settings.news'))
+            keyboard.row(InlineKeyboardButton(('🟢' if settings.notification else '🔴')+" Результаты ставок",
+                                              callback_data='commands.player.settings.notification'))
+            keyboard.row(InlineKeyboardButton('◀️ Выйти в меню', callback_data='commands.menu'))
+        case ['news']:
+            settings.news = not settings.news
+            settings.save()
+            await player_settings(msg)
+            return
+        case ['notification']:
+            settings.notification = not settings.notification
+            settings.save()
+            await player_settings(msg)
+            return
+    answer['reply_markup'] = keyboard
+    await bot.send_message(**answer)
 
 
 @dp.message_handler()
 @RegisterMessageUser
 async def custom_message(msg: Message, user: models.TGUser, **kwargs):
     if msg.chat.type != 'private':
-        return
+        return True
     if msg.reply_to_message:
         data = cache.get(user.id, None)
         if data is None:
-            return
+            return True
         try:
             money = float(msg.text.replace(',', '.'))
             if money - int(money * 100) / 100:
@@ -307,17 +284,17 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
                 await bot.send_message(user.id, f"У вас на счету нет такой ставки. Введите сумму ставки.\n"
                                                 f"Напомню, у вас сейчас 💴 {user.balance}:",
                                        reply_markup=ForceReply.create(selective=True))
-                return
+                return True
             if money < 100:
                 await bot.send_message(user.id, f"Минимальная ставка - 💴 100. Введите сумму ставки.\n"
                                                 f"Напомню, у вас сейчас 💴 {user.balance}:",
                                        reply_markup=ForceReply.create(selective=True))
-                return
+                return True
         except ValueError:
             await bot.send_message(user.id, f"Сумма ставки должна быть целым числом. Введите сумму ставки.\n"
                                             f"Напомню, у вас сейчас 💴 {user.balance}:",
                                    reply_markup=ForceReply.create(selective=True))
-            return
+            return True
         del cache[user.id]
         team: models.TeamEvent = models.TeamEvent.objects.get(pk=data['team'])
         if bet := team.create_bet(money, user):
@@ -331,7 +308,7 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
                 f"✅ <b>Ставка#{bet.pk} успешно сделана!</b>\n\n"
                 f"Исход на {team} с коэфициентом {bet.value}\n"
                 f"Возможный выигрыш <b>💴 {int(bet.money * bet.value)}</b>\n\n"
-                f"<code>Подробнее:\n" + get_info(bet, active=True),
+                f"Подробнее:\n" + bet.get_info(),
                 parse_mode=types.ParseMode.HTML,
             )
             message = f"Ставка#{bet.pk} успешно сделана!\n" \
@@ -347,15 +324,17 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
                 inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]]
             )
         )
-    elif msg.text.lower() in ['сделать ставку']:
-        return await get_bet(msg)
-    elif msg.text.lower() in ['настройки']:
-        return await player_settings(msg)
-    elif msg.text.lower() in ['ставки', 'bets']:
-        return await bets(msg)
-    elif msg.text.lower() in ['rating', 'рейтинг']:
-        return await rating(msg)
-    elif msg.text.lower() in ['баланс', 'balance']:
-        return await balance(msg)
-    elif msg.text.lower() in ['меню', 'menu']:
-        return await menu(msg)
+    else:
+        match msg.text.lower().split():
+            case ['сделать', 'ставку'] | ['make', 'bet']:
+                await get_bet(msg)
+            case ['настройки' | 'settings']:
+                await player_settings(msg)
+            case ['ставки' | 'bets']:
+                await bets(msg)
+            case ['rating' | 'рейтинг']:
+                await rating(msg)
+            case ['баланс' | 'balance']:
+                await balance(msg)
+            case ['меню' | 'menu']:
+                await menu(msg)

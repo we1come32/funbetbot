@@ -1,10 +1,25 @@
 import datetime
 from typing import Union
 
+import aiogram
+from aiogram import types
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from django.db import models
 from django.utils import timezone
 
 from . import managers
+
+
+menuKeyboard = InlineKeyboardMarkup(resize_keyboard=True, inline_keyboard=[
+    [
+        InlineKeyboardButton(text='💴 Сделать ставку', callback_data='commands.bet'),
+    ], [
+        InlineKeyboardButton(text='💴 Баланс', callback_data='commands.player.balance'),
+        InlineKeyboardButton(text='💼 Ставки', callback_data='commands.bets'),
+    ], [
+        InlineKeyboardButton(text='🔥 Рейтинг', callback_data='commands.rating'),
+        InlineKeyboardButton(text='⚙ Настройки', callback_data='commands.player.settings'),
+    ]])
 
 
 class TGUser(models.Model):
@@ -16,6 +31,7 @@ class TGUser(models.Model):
     status = models.BooleanField(default=True, verbose_name="Статус активности аккаунта")
     admin = models.BooleanField(default=False, verbose_name="Администратор")
     balance = models.BigIntegerField(default=1000, verbose_name="Баланс")
+    rating = models.BigIntegerField(default=1000, verbose_name="Рейтинг")
     language = models.CharField(max_length=2, default='en', verbose_name="Языковой пакет")
     tg_language = models.CharField(max_length=2, default='en',
                                    verbose_name="Языковой пакет в Telegram")
@@ -24,7 +40,7 @@ class TGUser(models.Model):
         try:
             return self.settings
         except:
-            return
+            return Settings.objects.create(user=self)
 
     def __str__(self):
         if self.name:
@@ -38,6 +54,9 @@ class Settings(models.Model):
 
     user = models.OneToOneField(TGUser, on_delete=models.CASCADE, verbose_name='Пользователь',
                                 default=None, blank=True)
+    objects = managers.DefaultManager()
+    news = models.BooleanField(default=True, verbose_name='Новости')
+    notification = models.BooleanField(default=True, verbose_name='Оповещения')
 
     def __str__(self):
         return f"Настройки {self.user}"
@@ -124,7 +143,7 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.name} (pk={self.pk})"
 
-    def win(self, team: "TeamEvent") -> bool:
+    async def win(self, team: "TeamEvent", bot: aiogram.Bot) -> bool:
         if self.ended:
             return False
         self.ended = True
@@ -138,9 +157,9 @@ class Event(models.Model):
             bets: list[Bet] = _team.bets.filter(is_active=True, payed=False)
             for bet in bets:
                 if flag:
-                    bet.win()
+                    await bet.win(bot)
                 else:
-                    bet.lose()
+                    await bet.lose(bot)
         return True
 
 
@@ -219,22 +238,93 @@ class Bet(models.Model):
 
     objects = managers.DefaultManager()
 
-    def win(self):
+    async def win(self, bot: aiogram.Bot):
         if not self.is_active:
             return False
         self.winner = True
         self.payed = True
+        self.user.rating = self.user.rating + self.value * self.money - self.money
         self.user.balance = self.user.balance + self.value * self.money
         self.user.save()
         self.save()
+        settings: Settings = self.user.get_settings()
+        if settings.notification:
+            try:
+                await bot.send_message(
+                    chat_id=self.user.id,
+                    text=f"<b>Ставка#{self.pk}</b> оказалась выигрышной🔥\n"
+                         f"Ваш рейтинг увеличился на ⚜️ {int(self.value * self.money - self.money)}, "
+                         f"а баланс на 💴 {int(self.value * self.money)}\n\n"
+                         f"Подробнее:\n{self.get_info()}",
+                    parse_mode=types.ParseMode.HTML,
+                )
+                await bot.send_message(
+                    chat_id=self.user.id,
+                    text="Сделаем ещё ставку?",
+                    reply_markup=menuKeyboard
+                )
+            except:
+                pass
         return True
 
-    def lose(self):
+    async def lose(self, bot: aiogram.Bot):
         if not self.is_active:
             return False
         self.payed = True
+        self.user.rating = self.user.rating - self.value * self.money
+        self.user.save()
         self.save()
+        settings: Settings = self.user.get_settings()
+        if settings.notification:
+            try:
+                await bot.send_message(
+                    chat_id=self.user.id,
+                    text=f"<b>Ставка#{self.pk}</b> оказалась проигрышной(\n"
+                         f"Ваш рейтинг уменьшился на ⚜️ {int(self.value * self.money)}\n\n"
+                         f"Подробнее:\n{self.get_info()}",
+                    parse_mode=types.ParseMode.HTML,
+                )
+                await bot.send_message(
+                    chat_id=self.user.id,
+                    text="Сделаем ещё ставку?",
+                    reply_markup=menuKeyboard
+                )
+            except:
+                pass
         return True
+
+    def get_info(self, active: bool = False) -> str:
+        team: str = self.team.team.get_name()
+        if team != 'Ничья':
+            team = f"победу команды {team}"
+        else:
+            team = 'ничью'
+        if active:
+            if not self.is_active or self.payed:
+                return ""
+        _header = f"Ставка#{self.pk}"
+        if self.is_active is False:
+            _header += " [Отменён пользователем]"
+        if self.payed:
+            if self.winner:
+                _header += " [Ставка выиграна] [Оплачено]"
+            else:
+                _header += " [Ставка проиграна]"
+        return f"<code>{_header}\n" \
+               f"- Вид спорта: <i><u>{self.team.event.tournament.subcategory.category.name.upper()}</u></i>\n" + \
+               f"- Подкатегория: <i><u>{self.team.event.tournament.subcategory.name.upper()}</u></i>\n" + \
+               f"- Турнир: <i><u>{self.team.event.tournament.name.upper()}</u></i>\n" + \
+               f"- Событие: <i>{self.team.event.name!r}</i>\n" + \
+               f"- Исход на <i>{team}</i> с коэфициентом {self.value}\n" + \
+               f"- Сумма ставки: 💴 {self.money}\n" + \
+               (f"- Выигрыш: 💴 <b>{int(self.money * self.value)}</b>\n" if self.winner else "") + \
+               (f"- Выиграно рейтинга: ⚜️<b>{int(self.money * self.value - self.money)}</b>\n" if self.winner else "") + \
+               (f"- Проиграно рейтинга: ⚜️ <b>{int(self.money * self.value)}</b>\n"
+                if not self.winner and self.payed
+                else "") + \
+               (f"- Возможный выигрыш: 💴 {int(self.money * self.value)}\n" if not self.payed and self.is_active else "") + \
+               f"- Дата события: {self.team.event.start_time} UTC\n" + \
+               f"- Дата создания ставки: {self.created_date} UTC</code>\n\n"
 
 
 class TeamModeration(models.Model):

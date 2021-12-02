@@ -5,12 +5,18 @@ from .textHandlers import *
 
 
 @dp.callback_query_handler()
-async def callback_function(call: types.CallbackQuery):
+@RegisterMessageUser
+async def callback_function(call: types.CallbackQuery, user: models.TGUser, **kwargs):
     loguru.logger.debug(f"Data: {call.data!r}")
     data = call.data.split('.')
     try:
         await bot.answer_callback_query(call.id)
     except InvalidQueryID:
+        pass
+    try:
+        message_id = call.message.message_id
+        await bot.delete_message(user.id, message_id)
+    except AttributeError:
         pass
     match data:
         case ['commands', 'menu']:
@@ -19,8 +25,8 @@ async def callback_function(call: types.CallbackQuery):
             return await addBalance(call)
         case ['commands', 'player', 'balance']:
             return await balance(call)
-        case ['commands', 'player', 'settings']:
-            return await player_settings(call)
+        case ['commands', 'player', 'settings', *params]:
+            return await player_settings(call, params=params)
         case ['commands', 'rating']:
             return await rating(call)
         case ['commands', 'bets']:
