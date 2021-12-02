@@ -21,13 +21,14 @@
 1) Установить Python 3.8+
 2) Установить pip - менеджер пакетов Python
 3) Создать виртуальное окружение: `python3 -m venv myvenv .` (для Windows `python -m venv myvenv .`) (точка обязательна)
-4) Скачать репозиторий `git clone git+/github.com/we1come32/funbetbot`
-5) Установить зависимости `pip3 install -r requirements.txt` 
+4) Активировать виртуальное окружение `source ./myvenv/bin/Activate` (для Windows `./myvenv/Scripts/activate.bat`)
+6) Скачать репозиторий `git clone git+/github.com/we1come32/funbetbot`
+7) Установить зависимости `pip3 install -r requirements.txt` 
 (для Windows `pip install -r requirements.txt`)
-6) Создать своего бота у <a href="https://t.me/botfather">@BotFather</a>, получить ключ доступа бота
-7) Вставить ключ доступа в `config.py` в переменную `ACCESS_TOKEN`
-8) Для запуска бота: `python3 main.py` (для Windows `python main.py`)
-9) Для запуска мониторинга событий: `python3 background_tasks.py` (для Windows `python background_tasks.py`)
+8) Создать своего бота у <a href="https://t.me/botfather">@BotFather</a>, получить ключ доступа бота
+9) Вставить ключ доступа в `config.py` в переменную `ACCESS_TOKEN`
+10) Для запуска бота: `python3 main.py` (для Windows `python main.py`)
+11) Для запуска мониторинга событий: `python3 background_tasks.py` (для Windows `python background_tasks.py`)
 
 ---
 
