@@ -128,37 +128,46 @@ async def rating(user: models.TGUser, msg: Message = None, message_id: int = Non
     await bot.send_message(user.id, message, reply_markup=menuKeyboard)
 
 
+def get_info(item: models.Bet, active: bool = False) -> str:
+    team: str = item.team.team.get_name()
+    if team != 'Ничья':
+        team = f"победу команды {team}"
+    else:
+        team = 'ничью'
+    if active:
+        if not item.is_active or item.payed:
+            return ""
+    _header = f"Ставка#{item.pk}"
+    if item.is_active is False:
+        _header += " [Отменён пользователем]"
+    if item.payed:
+        if item.winner:
+            _header += " [Ставка выиграна] [Оплачено]"
+        else:
+            _header += " [Ставка проиграна]"
+    return f"<code>{_header}\n" \
+           f"- Вид спорта: <i><u>{item.team.event.tournament.subcategory.category.name.upper()}</u></i>\n" \
+           f"- Подкатегория: <i><u>{item.team.event.tournament.subcategory.name.upper()}</u></i>\n" \
+           f"- Турнир: <i><u>{item.team.event.tournament.name.upper()}</u></i>\n" \
+           f"- Событие: <i>{item.team.event.name!r}</i>\n" \
+           f"- Исход на <i>{team}</i> с коэфициентом {item.value}\n" \
+           f"- Сумма ставки: {item.money}\n" \
+           f"- Возможный выигрыш: {int(item.money*item.value)}\n" \
+           f"- Дата события: {item.team.event.start_time}\n" \
+           f"- Дата создания: {item.created_date}</code>\n\n"
+
+
 @dp.message_handler(commands=['bets', 'ставки'])
 @RegisterMessageUser
 async def bets(user: models.TGUser, msg: Message = None, message_id: int = None, **kwargs):
-    def get_info(item: models.Bet, active: bool = False) -> str:
-        team: str = item.team.team.get_name()
-        if team != 'Ничья':
-            team = f"Победа команды {team}"
-        if active:
-            if not item.is_active or item.payed:
-                return ""
-        _header = f"Ставка#{item.pk}"
-        if item.is_active is False:
-            _header += " (Отменён пользователем)"
-        if item.payed:
-            _header += " (Оплачено)"
-        return f"{_header}\n" \
-               f"- Вид спорта: {item.team.event.tournament.subcategory.category.name!r}\n" \
-               f"- Подкатегория: {item.team.event.tournament.subcategory.name!r}\n" \
-               f"- Турнир: {item.team.event.tournament.name!r}\n" \
-               f"- Событие: {item.team.event.name!r}\n" \
-               f"- Исход на {team!r} с коэфициентом {bet.value}\n" \
-               f"- Дата события: {item.team.event.start_time}\n" \
-               f"- Дата создания: {item.created_date}\n\n"
-
     header = "<b>Ваши ставки:</b>\n\n"
     message = ""
     queryBets = models.Bet.objects.filter(user=user).order_by('-pk')
     for bet in queryBets:
         message += get_info(bet)
     if bets:
-        file = StringIO(message)
+        file = StringIO(message.replace('<code>', '').replace('</code>', '').replace('<u>', '').replace('</u>', '')
+                        .replace('<i>', '').replace('</i>', ''))
         file.name = f'bets_{user}_{timezone.now()}.txt'
         await bot.send_document(user.id, file)
         message = ""
@@ -300,19 +309,15 @@ async def custom_message(msg: Message, user: models.TGUser, **kwargs):
         if bet := team.create_bet(money, user):
             team: str = team.team.get_name()
             if team != 'Ничья':
-                team = f"Победа команды {team}"
+                team = f"победу команды {team}"
+            else:
+                team = 'ничью'
             await bot.send_message(
                 user.id,
                 f"✅ <b>Ставка#{bet.pk} успешно сделана!</b>\n\n"
-                f"Исход на {team!r} с коэфициентом {bet.value}\n"
+                f"Исход на {team} с коэфициентом {bet.value}\n"
                 f"Возможный выигрыш <b>💴 {int(bet.money*bet.value)}</b>\n\n"
-                f"<code>Подробнее:\n"
-                f"- Вид спорта: {bet.team.event.tournament.subcategory.category.name!r}\n"
-                f"- Подкатегория: {bet.team.event.tournament.subcategory.name!r}\n"
-                f"- Турнир: {bet.team.event.tournament.name!r}\n"
-                f"- Событие: {bet.team.event.name!r}\n"
-                f"- Дата: {bet.team.event.start_time.strftime('%c')}\n"
-                f"- Ставка#{bet.pk}. Исход на {team!r} с коэфициентом {bet.value}</code>",
+                f"<code>Подробнее:\n" + get_info(bet, active=True),
                 parse_mode=types.ParseMode.HTML,
             )
             message = f"Ставка#{bet.pk} успешно сделана!\n" \

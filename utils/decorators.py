@@ -38,13 +38,11 @@ class RegisterMessageUser:
         except TGUser.DoesNotExist:
             await msg.answer('Произошла какая-то ошибка, зарегистрируйтесь заново: /start')
             return None
-        print("Start", self._fun, kwargs)
         result = await self._fun(
             msg=msg,
             user=user,
             **kwargs,
         )
-        print("End", result)
         return result
 
 

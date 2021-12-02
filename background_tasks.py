@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import time
 
 import loguru
@@ -7,12 +6,11 @@ import pytz
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from aiogram.utils.exceptions import RetryAfter
-from django.utils import timezone
 
 import config
 import utils.setup_django
-from data.models import *
 from modules.parser.parimatch import PariMatchLoader
+from data.models import *
 from modules.parser import sports_ru
 from core.telegram.bot import bot
 
@@ -150,7 +148,7 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
             continue
         game.update(tournament=tournamentName)
         for team in game['teams']:
-            _ = TeamName.objects.filter(name=team, verified=True,
+            _ = TeamName.objects.filter(verified=True, name=team,
                                         team__events__event__tournament=event.tournament)
             if len(_) == 0:
                 banWords = ['esports', 'team', 'gaming', 'мхк', 'or', 'спартак', 'динамо', 'сити', 'арсенал',
@@ -251,12 +249,9 @@ def check_event_links() -> None:
     global allow_categories
     try:
         while True:
-            events = Event.objects.filter(sports_ru_link='').order_by('start_time')
-            if not events:
-                break
+            Event.objects.filter(sports_ru_link='', start_time__lt=timezone.now()).delete()
+            events = Event.objects.filter(sports_ru_link='', start_time__gte=timezone.now()).order_by('start_time')
             for event in events:
-                if event.teams.filter(team__names__verified=False).count():
-                    continue
                 url: dict | str = allow_categories[event.tournament.subcategory.category.name]
                 if type(url) is dict:
                     url: str = url[event.tournament.subcategory.name]
@@ -288,8 +283,6 @@ def check_old_events() -> None:
             else:
                 win_team = event.teams.get(team__names__name=data['teams'][1])
             event.win(win_team)
-        else:
-            print(data)
 
 
 if __name__ == "__main__":
