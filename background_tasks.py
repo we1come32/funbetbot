@@ -288,6 +288,8 @@ def check_old_events() -> None:
 def check_values_events() -> None:
     events = Event.objects.filter(~models.Q(sports_ru_link=''),
                                   start_time__gte=timezone.now())
+    for event in events:
+        print(pm.parse_pari(event.parimatch_link))
 
 
 if __name__ == "__main__":
@@ -299,7 +301,9 @@ if __name__ == "__main__":
         loguru.logger.debug(f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
         check_event_links()
         loguru.logger.debug(f"Закончился поиск связей событий с событиями на sports. "
-                            f"Начинается проверка на окончание событий")
+                            f"Приступаю к обновлению коэффициентов")
+        # check_values_events()
+        loguru.logger.debug(f"Закончил обновление коэффициентов. Начинается проверка на окончание событий")
         check_old_events()
         t = 300 + start_time - time.time()
         loguru.logger.debug(f"Проверка на окончание событий завершена. Жду {max(t, 300)}c. до следующего цикла")

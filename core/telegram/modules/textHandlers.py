@@ -123,9 +123,16 @@ async def rating(user: models.TGUser, msg: Message = None, message_id: int = Non
         _user = _user.values.get('username', f'user{_.id}')
         if _.id == user.id:
             flag = False
-        message += f"\n{number + 1}) {_user} - {_.balance}"
+        if _user == user:
+            message += f"\n<b>{number + 1}) {_user} - {_.balance}</b>"
+        else:
+            message += f"\n{number + 1}) {_user} - {_.balance}"
     if flag:
-        message += f"\n\nВаше место в рейтинге - {1 + users.index(user)}"
+        users: list[models.TGUser] = models.TGUser.objects.filter().order_by('-balance').all()
+        for number, _user in enumerate(users):
+            if _user == user:
+                message += f"\n\nВаше место в рейтинге - {1 + number}"
+                break
     await bot.send_message(user.id, message, reply_markup=menuKeyboard)
 
 
