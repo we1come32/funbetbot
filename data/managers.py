@@ -26,12 +26,13 @@ class EventManager(models.Manager):
         filters = {'name': name, 'tournament': tournament}
         if parimatch_link:
             filters['parimatch_link'] = parimatch_link
-        objects = self.filter(**filters)
+        objects = self.filter(**filters, ended=False, start_time__gt=date - datetime.timedelta(days=7),
+                              start_time__lt=date + datetime.timedelta(days=7))
         if len(objects) == 0:
             return self.create(**filters, start_time=date)
         else:
             objects = objects[0]
-            objects.start_time=date
+            objects.start_time = date
             objects.save()
         return objects
 

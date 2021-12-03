@@ -10,7 +10,7 @@ from utils.logger import LoggerMiddleware
 
 loop = asyncio.get_event_loop()
 
-bot = aiogram.Bot(token=config.ACCESS_TOKEN, loop=loop, connections_limit=6)
+bot = aiogram.Bot(token=config.ACCESS_TOKEN, loop=loop)
 logger.info("Бот авторизован")
 
 dp = aiogram.Dispatcher(

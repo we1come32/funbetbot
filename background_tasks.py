@@ -286,6 +286,8 @@ def check_event_links() -> None:
             # """
     except IndexError:
         pass
+    except AttributeError:
+        pass
         # """
 
 
@@ -305,17 +307,20 @@ def check_old_events() -> None:
             # event.delete()
             continue
         data.update(url=event.sports_ru_link)
-        if data['status'].lower().split()[0].startswith('заверш') or data['status'].lower() == 'матч окончен':
-            matchboard = data['matchboard']
-            if matchboard[0] == matchboard[1]:
-                win_team = event.teams.get(team__names__name='Ничья')
-            elif matchboard[0] > matchboard[1]:
-                win_team = event.teams.get(team__names__name=data['teams'][0])
+        try:
+            if data['status'].lower().split()[0].startswith('заверш') or data['status'].lower() == 'матч окончен':
+                matchboard = data['matchboard']
+                if matchboard[0] == matchboard[1]:
+                    win_team = event.teams.get(team__names__name='Ничья')
+                elif matchboard[0] > matchboard[1]:
+                    win_team = event.teams.get(team__names__name=data['teams'][0])
+                else:
+                    win_team = event.teams.get(team__names__name=data['teams'][1])
+                run(event.win(win_team, bot=bot))
             else:
-                win_team = event.teams.get(team__names__name=data['teams'][1])
-            run(event.win(win_team, bot=bot))
-        else:
-            print(data)
+                print(data)
+        except IndexError:
+            continue
 
 
 def check_values_events() -> None:

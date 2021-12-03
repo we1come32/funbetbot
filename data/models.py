@@ -255,8 +255,8 @@ class Bet(models.Model):
             return False
         self.winner = True
         self.payed = True
-        self.user.rating = self.user.rating + self.value * self.money - self.money
-        self.user.balance = self.user.balance + self.value * self.money
+        self.user.rating = self.user.rating + int(self.value * self.money - self.money)
+        self.user.balance = self.user.balance + int(self.value * self.money)
         self.user.save()
         self.save()
         settings: Settings = self.user.get_settings()
@@ -280,7 +280,7 @@ class Bet(models.Model):
         if not self.is_active:
             return False
         self.payed = True
-        self.user.rating = self.user.rating - self.money
+        self.user.rating = self.user.rating - int(self.money / self.value)
         self.user.save()
         self.save()
         settings: Settings = self.user.get_settings()
@@ -288,7 +288,7 @@ class Bet(models.Model):
             await Debugger(bot.send_message(
                 chat_id=self.user.id,
                 text=f"<b>Ставка#{self.pk}</b> оказалась проигрышной(\n"
-                     f"Ваш рейтинг уменьшился на ⚜️ {int(self.self.money)}\n\n"
+                     f"Ваш рейтинг уменьшился на ⚜️ {int(self.self.money / self.value)}\n\n"
                      f"Подробнее:\n{self.get_info()}",
                 parse_mode=types.ParseMode.HTML,
             ))
@@ -325,7 +325,7 @@ class Bet(models.Model):
                f"- Сумма ставки: 💴 {self.money}\n" + \
                (f"- Выигрыш: 💴 <b>{int(self.money * self.value)}</b>\n" if self.winner else "") + \
                (f"- Выиграно рейтинга: ⚜️<b>{int(self.money * self.value - self.money)}</b>\n" if self.winner else "") + \
-               (f"- Проиграно рейтинга: ⚜️ <b>{int(self.money * self.value)}</b>\n"
+               (f"- Проиграно рейтинга: ⚜️ <b>{int(self.money / self.value)}</b>\n"
                 if not self.winner and self.payed
                 else "") + \
                (f"- Возможный выигрыш: 💴 {int(self.money * self.value)}\n" if not self.payed and self.is_active else "") + \
