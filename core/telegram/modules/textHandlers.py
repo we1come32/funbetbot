@@ -52,7 +52,8 @@ async def start_function(msg: Message, **kwargs):
                 eventID = int(eventID)
                 event = models.Event.objects.get(pk=eventID)
                 if event.ended or event.start_time < timezone.now() or event.sports_ru_link == '':
-                    raise ValueError
+                    await msg.answer("Извините, это событие уже не поддерживается")
+                    return True
                 kwargs = {'category': event.tournament.subcategory.category.pk,
                           'subcategory': event.tournament.subcategory.pk,
                           'tournament': event.tournament.pk,
