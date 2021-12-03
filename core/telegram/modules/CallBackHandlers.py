@@ -13,12 +13,17 @@ async def callback_function(call: types.CallbackQuery, user: models.TGUser, **kw
         await bot.answer_callback_query(call.id)
     except InvalidQueryID:
         pass
-    try:
-        message_id = call.message.message_id
-        await bot.delete_message(user.id, message_id)
-    except AttributeError:
-        pass
+    if data[0] != 'moderation':
+        try:
+            message_id = call.message.message_id
+            await bot.delete_message(user.id, message_id)
+        except AttributeError:
+            pass
     match data:
+        case ['moderation', 'confirm']:
+            return await team_moderation(call.message.message_id, True, call)
+        case ['moderation', 'deny']:
+            return await team_moderation(call.message.message_id, False, call)
         case ['commands', 'menu']:
             return await menu(call)
         case ['commands', 'player', 'balance', 'add']:
@@ -39,10 +44,6 @@ async def callback_function(call: types.CallbackQuery, user: models.TGUser, **kw
             params = {key: value for key, value in zip(keys, params)}
             result = await get_bet(call, **params)
             return result
-        case ['moderation', 'confirm']:
-            return await team_moderation(call.message.message_id, True, call)
-        case ['moderation', 'deny']:
-            return await team_moderation(call.message.message_id, False, call)
         case [_]:
             return await bot.send_message(
                 call.from_user.id,

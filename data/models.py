@@ -1,9 +1,11 @@
+import asyncio
 import datetime
 from typing import Union
 
 import aiogram
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.exceptions import RetryAfter
 from django.db import models
 from django.utils import timezone
 
@@ -20,6 +22,16 @@ menuKeyboard = InlineKeyboardMarkup(resize_keyboard=True, inline_keyboard=[
         InlineKeyboardButton(text='🔥 Рейтинг', callback_data='commands.rating'),
         InlineKeyboardButton(text='⚙ Настройки', callback_data='commands.player.settings'),
     ]])
+
+
+async def Debugger(func: asyncio.coroutine):
+    while True:
+        try:
+            await func()
+            return True
+        except RetryAfter as e:
+            timer = int(str(e).split('.')[1].split()[2])
+            await asyncio.sleep(timer)
 
 
 class TGUser(models.Model):
@@ -249,48 +261,42 @@ class Bet(models.Model):
         self.save()
         settings: Settings = self.user.get_settings()
         if settings.notification:
-            try:
-                await bot.send_message(
-                    chat_id=self.user.id,
-                    text=f"<b>Ставка#{self.pk}</b> оказалась выигрышной🔥\n"
-                         f"Ваш рейтинг увеличился на ⚜️ {int(self.value * self.money - self.money)}, "
-                         f"а баланс на 💴 {int(self.value * self.money)}\n\n"
-                         f"Подробнее:\n{self.get_info()}",
-                    parse_mode=types.ParseMode.HTML,
-                )
-                await bot.send_message(
-                    chat_id=self.user.id,
-                    text="Сделаем ещё ставку?",
-                    reply_markup=menuKeyboard
-                )
-            except:
-                pass
+            await Debugger(bot.send_message(
+                chat_id=self.user.id,
+                text=f"<b>Ставка#{self.pk}</b> оказалась выигрышной🔥\n"
+                     f"Ваш рейтинг увеличился на ⚜️ {int(self.value * self.money - self.money)}, "
+                     f"а баланс на 💴 {int(self.value * self.money)}\n\n"
+                     f"Подробнее:\n{self.get_info()}",
+                parse_mode=types.ParseMode.HTML,
+            ))
+            await Debugger(bot.send_message(
+                chat_id=self.user.id,
+                text="Сделаем ещё ставку?",
+                reply_markup=menuKeyboard
+            ))
         return True
 
     async def lose(self, bot: aiogram.Bot):
         if not self.is_active:
             return False
         self.payed = True
-        self.user.rating = self.user.rating - self.value * self.money
+        self.user.rating = self.user.rating - self.money
         self.user.save()
         self.save()
         settings: Settings = self.user.get_settings()
         if settings.notification:
-            try:
-                await bot.send_message(
-                    chat_id=self.user.id,
-                    text=f"<b>Ставка#{self.pk}</b> оказалась проигрышной(\n"
-                         f"Ваш рейтинг уменьшился на ⚜️ {int(self.value * self.money)}\n\n"
-                         f"Подробнее:\n{self.get_info()}",
-                    parse_mode=types.ParseMode.HTML,
-                )
-                await bot.send_message(
-                    chat_id=self.user.id,
-                    text="Сделаем ещё ставку?",
-                    reply_markup=menuKeyboard
-                )
-            except:
-                pass
+            await Debugger(bot.send_message(
+                chat_id=self.user.id,
+                text=f"<b>Ставка#{self.pk}</b> оказалась проигрышной(\n"
+                     f"Ваш рейтинг уменьшился на ⚜️ {int(self.self.money)}\n\n"
+                     f"Подробнее:\n{self.get_info()}",
+                parse_mode=types.ParseMode.HTML,
+            ))
+            await Debugger(bot.send_message(
+                chat_id=self.user.id,
+                text="Сделаем ещё ставку?",
+                reply_markup=menuKeyboard
+            ))
         return True
 
     def get_info(self, active: bool = False) -> str:

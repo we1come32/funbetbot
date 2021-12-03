@@ -27,7 +27,6 @@ class RegisterMessageUser:
     async def __call__(self, msg: Message, **kwargs):
         try:
             user = TGUser.objects.get(id=msg.from_user.id)
-            print(user)
             try:
                 if msg.from_user.username != '':
                     user.name = msg.from_user.username
@@ -39,15 +38,11 @@ class RegisterMessageUser:
         except TGUser.DoesNotExist:
             await msg.answer('Произошла какая-то ошибка, зарегистрируйтесь заново: /start')
             return None
-        if user.admin:
-            print("Start", user, self._fun, kwargs)
         result = await self._fun(
             msg,
             user=user,
             **kwargs,
         )
-        if user.admin:
-            print("End", user, result)
         return result
 
 

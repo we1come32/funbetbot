@@ -12,8 +12,7 @@ import config
 import utils.setup_django
 from modules.parser.parimatch import PariMatchLoader
 from data.models import *
-from modules.parser import sports_ru
-
+from modules.parser import sports_ru, escorenews
 
 new_line = "\n"
 
@@ -34,13 +33,13 @@ def get_date(data: list) -> datetime.datetime:
         event_date = datetime.date(year, month, day)
     event_time = map(int, data[1].split(':'))
     event_time = datetime.time(*event_time)
-    return datetime.datetime(
+    return (datetime.datetime(
         year=event_date.year,
         month=event_date.month,
         day=event_date.day,
         hour=event_time.hour,
         minute=event_time.minute
-    ).replace(tzinfo=pytz.utc)
+    ) - datetime.timedelta(hours=3)).replace(tzinfo=pytz.utc)
 
 
 def set_cache_keys(data: dict) -> dict:
@@ -70,6 +69,8 @@ allow_categories = set_cache_keys({
     'киберспорт': {
         'counter-strike': 'https://cyber.sports.ru/cs/match/{year}-{month:0>2}-{day:0>2}/',
         'dota 2': 'https://cyber.sports.ru/dota2/match/{year}-{month:0>2}-{day:0>2}/',
+        'valorant': 'https://escorenews.com/ru/valorant/matches',
+        'лига легенд': 'https://escorenews.com/ru/lol/matches',
     },
     'футбол': 'https://www.sports.ru/football/match/{year}-{month:0>2}-{day:0>2}/',
     'хоккей': 'https://www.sports.ru/hockey/match/{year}-{month:0>2}-{day:0>2}/',
@@ -90,9 +91,12 @@ def check_new_events() -> None:
         if categoryName.lower() in allow_categories['keys']:
             parse_link: str | None = None
             allow_category_data = allow_categories[categoryName.lower()]
-            subcategories = pm.parse_tournaments(categoryHref)
             if type(allow_category_data) is str:
                 parse_link = allow_category_data
+                kwargs = []
+            else:
+                kwargs = allow_category_data.keys()
+            subcategories = pm.parse_tournaments(categoryHref, subcategories=kwargs)
             categoryModel = Category.objects.get_or_create(name=categoryName.lower())
             for subcategoryName, subcategoryData in subcategories.items():
                 if type(allow_category_data) is dict:
@@ -158,9 +162,8 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
             _ = TeamName.objects.filter(verified=True, name=team,
                                         team__events__event__tournament=event.tournament)
             if len(_) == 0:
-                banWords = ['esports', 'team', 'gaming', 'мхк', 'or', 'спартак', 'динамо', 'сити', 'арсенал',
-                            'юнайтед', 'цска', 'реал', 'in', 'in', 'u-19', 'u-20', 'вест', 'локомотив',
-                            'esport', 'of', ]
+                banWords = ['esports', 'team', 'gaming', 'мхк', 'or', 'in', 'in', 'u-19', 'u-20', 'вест',
+                            'esport', 'of']
                 _flag = True
                 question: models.Q | None = None
                 for _ in team.split():
@@ -174,6 +177,7 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
                     _teams = TeamName.objects.filter(question, verified=True,
                                                      team__events__event__tournament=event.tournament)
                 except TypeError:
+                    print("Скипнуто TypeError", game['teams'], game['date'])
                     continue
                 _teams_keys = {}
                 if len(_teams):
@@ -197,7 +201,7 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
                                      f"<a href=\"{game['url']}\">Ссылка на модерируемое событие</a>\n\n"
                                      "Игры команды (с ссылками на PariMatch):\n"
                                      f"""{f'{new_line}'.join(
-                                         f'{number+1}) <a href="{event.event.parimatch_link}">{event.event.name}</a>'
+                                         f'{number + 1}) <a href="{event.event.parimatch_link}">{event.event.name}</a>'
                                          for number, event in enumerate(_.team.events.all())
                                      )}"""
                                      "\n\nСистеме нужна помощь. Проверьте, пожалуйста, "
@@ -235,17 +239,22 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
                          f"- Дата: {editEvent.event.start_time.strftime('%c')}\n\n"
                          "Коэффициенты:"
                          f"""  {''.join(
-                             f"{new_line}  {_}" 
+                             f"{new_line}  {_}"
                              for _ in editEvent.event.teams.all()
                          )}""",
                     disable_notification=True,
                     parse_mode=types.ParseMode.HTML,
-                    reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
-                        InlineKeyboardButton(text='Сделать ставку',
-                                             url=f'https://t.me/virtualbetbot?start=event{editEvent.event.pk}'),
-                    ], [
-                        InlineKeyboardButton(text='🔗 PariMatch', url=editEvent.event.parimatch_link),
-                        InlineKeyboardButton(text='🔗 Sports.Ru', url=game['url']),
+                    reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                        [InlineKeyboardButton(text='Сделать ставку',
+                                              url=f'https://t.me/virtualbetbot?start=event{editEvent.event.pk}'),],
+                        [InlineKeyboardButton(text='🔗 PariMatch', url=editEvent.event.parimatch_link),
+                         InlineKeyboardButton(
+                             text='🔗 ' +
+                                  ('eScoreNews.Com'
+                                   if game['url'].startswith('https://escorenews.com/ru')
+                                   else 'Sports.Ru'),
+                             url=game['url']
+                         ),
                     ]])
                 )
                 editEvent.event.sports_ru_link = game['url']
@@ -254,6 +263,7 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
 
 def check_event_links() -> None:
     global allow_categories
+    # if True:
     try:
         while True:
             Event.objects.filter(sports_ru_link='', start_time__lt=timezone.now()).delete()
@@ -262,27 +272,40 @@ def check_event_links() -> None:
                 url: dict | str = allow_categories[event.tournament.subcategory.category.name]
                 if type(url) is dict:
                     url: str = url[event.tournament.subcategory.name]
-                data = sports_ru.parse(url.format(
-                    day=event.start_time.day,
-                    month=event.start_time.month,
-                    year=event.start_time.year
-                ))
+                if url.startswith('https://escorenews.com/ru'):
+                    data = escorenews.parse(url)
+                else:
+                    data = sports_ru.parse(url.format(
+                        day=event.start_time.day,
+                        month=event.start_time.month,
+                        year=event.start_time.year
+                    ))
                 for tournamentName, tournamentGames in data.items():
                     moderate_sports_game(tournamentName, tournamentGames, event)
             break
+            # """
     except IndexError:
         pass
+        # """
 
 
 def check_old_events() -> None:
     global bot
     events = Event.objects.filter(~models.Q(sports_ru_link='') &
-                                  models.Q(start_time__lte=timezone.now()),
+                                  models.Q(start_time__lte=(timezone.now() + datetime.timedelta(hours=4))),
                                   ended=False)
     for event in events:
-        data = sports_ru.parse_event(event.sports_ru_link)
+        try:
+            if event.sports_ru_link.startswith('https://escorenews.com/ru'):
+                data = escorenews.parse_event(event.sports_ru_link)
+            else:
+                data = sports_ru.parse_event(event.sports_ru_link)
+        except AttributeError:
+            print("Ссылка говно", event)
+            # event.delete()
+            continue
         data.update(url=event.sports_ru_link)
-        if data['status'].lower().split()[0].startswith('заверш'):
+        if data['status'].lower().split()[0].startswith('заверш') or data['status'].lower() == 'матч окончен':
             matchboard = data['matchboard']
             if matchboard[0] == matchboard[1]:
                 win_team = event.teams.get(team__names__name='Ничья')
@@ -291,6 +314,8 @@ def check_old_events() -> None:
             else:
                 win_team = event.teams.get(team__names__name=data['teams'][1])
             run(event.win(win_team, bot=bot))
+        else:
+            print(data)
 
 
 def check_values_events() -> None:
@@ -300,15 +325,15 @@ def check_values_events() -> None:
         print(pm.parse_pari(event.parimatch_link))
 
 
-if __name__ == "__main__":
-    pm = PariMatchLoader()
-    bot = aiogram.Bot(token=config.ACCESS_TOKEN)
+@loguru.logger.catch
+def main():
     while True:
         try:
             start_time = time.time()
             loguru.logger.debug(f"Начинается поиск новых событий")
             check_new_events()
-            loguru.logger.debug(f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
+            loguru.logger.debug(
+                f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
             check_event_links()
             loguru.logger.debug(f"Закончился поиск связей событий с событиями на sports. "
                                 f"Приступаю к обновлению коэффициентов")
@@ -320,5 +345,9 @@ if __name__ == "__main__":
             time.sleep(max(300 + start_time - time.time(), 300))
         except KeyboardInterrupt:
             exit()
-        except:
-            pass
+
+
+if __name__ == "__main__":
+    pm = PariMatchLoader()
+    bot = aiogram.Bot(token=config.ACCESS_TOKEN)
+    main()

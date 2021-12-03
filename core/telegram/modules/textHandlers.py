@@ -4,12 +4,13 @@ from aiogram import types
 from aiogram.dispatcher import filters
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ForceReply
 from aiogram.utils import exceptions
+from django.db.models import Count
 from django.utils import timezone
 
 import config
 from core.telegram import dp, bot
 from data import models
-from utils.decorators import RegisterMessageUser, FixParameterTypes
+from utils.decorators import RegisterMessageUser
 from .keyboards import *
 
 cache = {}
@@ -98,17 +99,15 @@ async def balance(msg: Message = None, user: models.TGUser = None, message_id: i
 
 @dp.message_handler(commands=['add_balance', 'добавить_баланс'])
 @RegisterMessageUser
-async def addBalance(user: models.TGUser = None, msg: Message = None, message_id: int = None, **kwargs):
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
+async def addBalance(msg: Message = None, user: models.TGUser = None, message_id: int = None, **kwargs):
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
     if models.Bet.objects.filter(user=user, is_active=True, payed=False).count() == 0 and user.balance <= 500:
-        user.balance += 500
+        user.balance = user.balance + 500
         user.save()
         message = "❕ Баланс пополнен на 💴 500\n"
     else:
         message = "⛔️ Условия пополнения не соблюдаются\n"
-    await bot.send_message(user.id, f"{message}Ваш баланс: 💴 {user.balance}", reply_markup=kb,
-                           parse_mode=types.ParseMode.HTML, )
+    await bot.send_message(user.id, f"{message}Ваш баланс: 💴 {user.balance}", reply_markup=kb)
 
 
 @dp.message_handler(commands=['rating', 'рейтинг'])
@@ -162,7 +161,7 @@ async def bets(msg: Message = None, user: models.TGUser = None, message_id: int 
 @dp.message_handler(commands=['make_bet', 'сделать_ставку'])
 @RegisterMessageUser
 async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
-    kb = InlineKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    kb = InlineKeyboardMarkup(one_time_keyboard=True, row_width=2)
     category = kwargs.get('category', None)
     subcategory = kwargs.get('subcategory', None)
     tournament = kwargs.get('tournament', None)
@@ -188,9 +187,10 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
                                     callback_data=f'commands.bet'))
     elif tournament is None:
         text = "❗️Выберите турнир"
-        subcategories = models.SubCategory.objects.get(pk=subcategory).tournaments.all()
+        subcategories = list(models.SubCategory.objects.get(pk=subcategory).tournaments.all())
+        subcategories.sort(key=lambda tmp: models.Bet.objects.filter(team__event__tournament=tmp).count(), reverse=True)
         for tmpSubCategory in subcategories:
-            if tmpSubCategory.events.filter(ended=False).count():
+            if tmpSubCategory.events.filter(~models.models.Q(sports_ru_link=''), ended=False).count():
                 kb.row(InlineKeyboardButton(tmpSubCategory.name.upper(),
                                             callback_data=f'commands.bet.{category}.{subcategory}.{tmpSubCategory.pk}'))
         kb.row(InlineKeyboardButton("◀️ Назад",
@@ -198,12 +198,13 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
     elif event is None:
         text = "❗️ Выберите событие:\n" \
                "✅ - вы уже делали ставку на это событие"
-        subcategories = models.Tournament.objects.get(pk=tournament).events.filter(
+        subcategories = list(models.Tournament.objects.get(pk=tournament).events.filter(
             ~models.models.Q(sports_ru_link="") & ~models.models.Q(parimatch_link=""),
             start_time__gte=timezone.now(),
-            ended=False)
+            ended=False))
+        subcategories.sort(key=lambda tmp: models.Bet.objects.filter(team__event=tmp).count(), reverse=True)
         for tmpSubCategory in subcategories:
-            kb.row(InlineKeyboardButton(
+            kb.add(InlineKeyboardButton(
                 ("✅  " if models.Bet.objects.filter(
                     user=user,
                     team__event=tmpSubCategory
@@ -228,7 +229,13 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
                                         callback_data=f'commands.bet.{category}.{subcategory}.{tournament}.'
                                                       f'{event}.{tmpSubCategory.pk}'))
         kb.row(InlineKeyboardButton(text='🔗 PariMatch', url=_event.parimatch_link),
-               InlineKeyboardButton(text='🔗 Sports.Ru', url=_event.sports_ru_link))
+               InlineKeyboardButton(
+                   text='🔗 ' +
+                        ('eScoreNews.Com'
+                         if _event.sports_ru_link.startswith('https://escorenews.com/ru')
+                         else 'Sports.Ru'),
+                   url=_event.sports_ru_link)
+               )
         kb.row(InlineKeyboardButton("◀️ Назад",
                                     callback_data=f'commands.bet.{category}.{subcategory}.{tournament}'))
     else:

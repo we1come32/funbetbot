@@ -1,6 +1,7 @@
 import time
 
 import loguru
+import selenium
 from selenium.webdriver.common.by import By
 
 from .ABC import ABCParseLoader
@@ -16,10 +17,6 @@ class PariMatchLoader(ABCParseLoader):
     _update_time: float = 600
     _last_update_time: float
     _last_update_work_time: float
-    allow_categories: list[str] = [
-        # 'футбол',
-        'киберспорт',
-    ]
 
     @logger.catch
     def parse_pari(self, url: str) -> dict:
@@ -57,7 +54,7 @@ class PariMatchLoader(ABCParseLoader):
         return result
 
     @logger.catch
-    def parse_tournaments(self, url: str) -> dict:
+    def parse_tournaments(self, url: str, subcategories: list = None) -> dict:
         """
         This method need to parse any project to get information about tournaments, events and pari on all this events
         :return: dict - data of games and tournaments with pari and links
@@ -115,44 +112,62 @@ class PariMatchLoader(ABCParseLoader):
             time.sleep(2)
             if len(table):
                 break
-
-        # Нам все турниры ни к чему, выбираем самые популярные
-        # Нашел блок с самыми популярными
-        popularBlock = self._browser.find_element(By.CLASS_NAME, '_3dBbVyIrol6CIhTjjLNzqw')
-        popularBlock.find_element(
-            By.TAG_NAME, 'div'  # Нашел все блоки
-        ).find_element(
-            By.CLASS_NAME, '_3xu_5giI9DkQFWFLlzxujC'  # Нашел кнопки
-        ).click()
-        logger.debug("Активировал фильтр только популярных турниров")
-
+        buttons = []
+        if len(subcategories) == 0:
+            # Выбираем только популярные турниры
+            popularBlock = self._browser.find_element(By.CLASS_NAME, '_3dBbVyIrol6CIhTjjLNzqw')
+            buttons.append(popularBlock.find_element(
+                By.TAG_NAME, 'div'  # Нашел все блоки
+            ).find_element(
+                By.CLASS_NAME, '_3xu_5giI9DkQFWFLlzxujC'  # Нашел кнопки
+            ))
+            logger.debug("Активировал фильтр только популярных турниров")
+        else:
+            categoriesBlock = self._browser.find_element(By.CLASS_NAME, 'Yx1PV7b2MvPsxOT7gKWle')
+            categoriesBlockList = categoriesBlock.find_elements(By.CLASS_NAME, '_3a3hikiZDvP_-_w8bGSiU7')
+            for categoryBlock in categoriesBlockList:
+                if categoryBlock.find_element(By.CLASS_NAME, '_2li4smtcpHzd6Jk8-KPiQ6').text.lower() in subcategories:
+                    categoryBlock.click()
+                    time.sleep(0.5)
+                    _buttons = categoryBlock.find_elements(By.CLASS_NAME, '_2Un2edST-Z_bmppzZbgWgx')
+                    for button in _buttons:
+                        buttons.append(button)
+            logger.debug("Активировал фильтры турниров с необходимых подкатегорий")
+        time.sleep(1)
         # Создаем информацию по ивентам в этой игре
         gamesData = {}
         className = '_2ZZzUiMH7QsOr52RGD_non'
-        if len(self._browser.find_elements(By.CLASS_NAME, 'ReactVirtualized__Grid__innerScrollContainer')):
-            logger.debug("Соревнований слишком много, включаю механизм скролла")
-            delta = 126
-            old_offsetTop = -126
-            c = 0
-            while True:
-                for event in self._browser.find_elements(By.CLASS_NAME, className):
-                    get_data_about_event(event)
-                value = self._browser.execute_script(
-                    'return document.getElementsByClassName(\'ReactVirtualized__List\')[0].scrollTop;'
-                )
-                if value != old_offsetTop:
-                    c += 1
-                    self._browser.execute_script(
-                        f'document.getElementsByClassName(\'ReactVirtualized__List\')[0].scroll(0, {4 * delta * c});'
+        for button in buttons:
+            button.click()
+            time.sleep(0.5)
+            if len(self._browser.find_elements(By.CLASS_NAME, 'ReactVirtualized__Grid__innerScrollContainer')):
+                logger.debug("Соревнований слишком много, включаю механизм скролла")
+                delta = 126
+                old_offsetTop = -126
+                c = 0
+                while True:
+                    for event in self._browser.find_elements(By.CLASS_NAME, className):
+                        get_data_about_event(event)
+                    value = self._browser.execute_script(
+                        'return document.getElementsByClassName(\'ReactVirtualized__List\')[0].scrollTop;'
                     )
-                    time.sleep(4)
-                    old_offsetTop = value
-                else:
-                    break
-            logger.debug("Скролл остановлен")
-        else:
-            for event in self._browser.find_elements(By.CLASS_NAME, className):
-                get_data_about_event(event)
+                    if value != old_offsetTop:
+                        c += 1
+                        self._browser.execute_script(
+                            f'document.getElementsByClassName(\'ReactVirtualized__List\')[0].scroll(0, {4 * delta * c});'
+                        )
+                        time.sleep(2)
+                        old_offsetTop = value
+                    else:
+                        break
+                logger.debug("Скролл остановлен")
+            else:
+                for event in self._browser.find_elements(By.CLASS_NAME, className):
+                    try:
+                        get_data_about_event(event)
+                    except selenium.common.exceptions.NoSuchElementException:
+                        pass
+            button.click()
         # Сохраняем информацию о турнирах в data
         self._browser_locked = False
         return gamesData

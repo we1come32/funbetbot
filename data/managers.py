@@ -29,7 +29,11 @@ class EventManager(models.Manager):
         objects = self.filter(**filters)
         if len(objects) == 0:
             return self.create(**filters, start_time=date)
-        return objects[0]
+        else:
+            objects = objects[0]
+            objects.start_time=date
+            objects.save()
+        return objects
 
 
 class DefaultManager(models.Manager):
