@@ -4,3 +4,4 @@ test.py
 geckodriver.log
 db.sqlite
 *.log
+db — копия.sqlite
