@@ -7,3 +7,6 @@ aiohttp~=3.8.0
 PyYAML~=6.0
 asyncio~=3.4.3
 Django~=3.2.9
+pytz~=2021.3
+pyQiwiP2P~=1.0.1
+multipledispatch~=0.6.0

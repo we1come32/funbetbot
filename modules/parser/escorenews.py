@@ -12,6 +12,7 @@ def parse_event(url: str) -> dict[str, str]:
     html = response.text
     base_url = url.split('.com')[0] + '.com'
     soup = BeautifulSoup(html, features='html.parser')
+    print(soup)
     event = soup.find('div', class_='teams-on-live')
     tmp = [_.text for _ in event.find_all('span')]
     teams = [event.find_all('span')[0].find('h2').text, event.find_all('span')[-1].find('h2').text]

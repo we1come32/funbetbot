@@ -24,11 +24,10 @@ menuKeyboard = InlineKeyboardMarkup(resize_keyboard=True, inline_keyboard=[
     ]])
 
 
-async def Debugger(func: asyncio.coroutine):
+async def Debugger(func):
     while True:
         try:
-            await func()
-            return True
+            return await func
         except RetryAfter as e:
             timer = int(str(e).split('.')[1].split()[2])
             await asyncio.sleep(timer)
@@ -155,13 +154,22 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.name} (pk={self.pk})"
 
+    async def close(self, bot: aiogram.Bot) -> bool:
+        if self.ended:
+            self.delete()
+            return False
+        for _team in self.teams.all():
+            bets: list[Bet] = _team.bets.filter(is_active=True, payed=False)
+            for bet in bets:
+                await bet.close(bot)
+        return True
+
     async def win(self, team: "TeamEvent", bot: aiogram.Bot) -> bool:
         if self.ended:
             return False
         self.ended = True
         self.save()
-        teams: list[Team] = self.teams.all()
-
+        teams: list[TeamEvent] = self.teams.all()
         if team not in teams:
             return False
         for _team in teams:
@@ -250,6 +258,28 @@ class Bet(models.Model):
 
     objects = managers.DefaultManager()
 
+    async def close(self, bot: aiogram.Bot):
+        if not self.is_active:
+            return False
+        self.user.balance = self.user.balance + self.money
+        self.user.save()
+        settings: Settings = self.user.get_settings()
+        if settings.notification:
+            await Debugger(bot.send_message(
+                chat_id=self.user.id,
+                text=f"<b>Ставка#{self.pk}</b> оказалась отменена🔥\n"
+                     f"Ваш рейтинг остался неизменным, "
+                     f"а ставка возвращена 💴 {self.money}\n\n",
+                parse_mode=types.ParseMode.HTML,
+            ))
+            await Debugger(bot.send_message(
+                chat_id=self.user.id,
+                text="Сделаем ещё ставку?",
+                reply_markup=menuKeyboard
+            ))
+        self.delete()
+        return True
+
     async def win(self, bot: aiogram.Bot):
         if not self.is_active:
             return False
@@ -288,7 +318,7 @@ class Bet(models.Model):
             await Debugger(bot.send_message(
                 chat_id=self.user.id,
                 text=f"<b>Ставка#{self.pk}</b> оказалась проигрышной(\n"
-                     f"Ваш рейтинг уменьшился на ⚜️ {int(self.self.money / self.value)}\n\n"
+                     f"Ваш рейтинг уменьшился на ⚜️ {int(self.money / self.value)}\n\n"
                      f"Подробнее:\n{self.get_info()}",
                 parse_mode=types.ParseMode.HTML,
             ))

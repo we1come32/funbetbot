@@ -12,7 +12,7 @@ import config
 import utils.setup_django
 from modules.parser.parimatch import PariMatchLoader
 from data.models import *
-from modules.parser import sports_ru, escorenews
+from modules.parser import sports_ru
 
 new_line = "\n"
 
@@ -69,8 +69,6 @@ allow_categories = set_cache_keys({
     'киберспорт': {
         'counter-strike': 'https://cyber.sports.ru/cs/match/{year}-{month:0>2}-{day:0>2}/',
         'dota 2': 'https://cyber.sports.ru/dota2/match/{year}-{month:0>2}-{day:0>2}/',
-        'valorant': 'https://escorenews.com/ru/valorant/matches',
-        'лига легенд': 'https://escorenews.com/ru/lol/matches',
     },
     'футбол': 'https://www.sports.ru/football/match/{year}-{month:0>2}-{day:0>2}/',
     'хоккей': 'https://www.sports.ru/hockey/match/{year}-{month:0>2}-{day:0>2}/',
@@ -157,6 +155,8 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
     for game in tournamentGames:
         if game['date'] == '—':
             continue
+        if tournamentName in ['valorant', 'лига легенд']:
+            event.delete()
         game.update(tournament=tournamentName)
         for team in game['teams']:
             _ = TeamName.objects.filter(verified=True, name=team,
@@ -270,20 +270,19 @@ def check_event_links() -> None:
             events = Event.objects.filter(sports_ru_link='', start_time__gte=timezone.now()).order_by('start_time')
             for event in events:
                 url: dict | str = allow_categories[event.tournament.subcategory.category.name]
+                if event.tournament.subcategory.name in ['valorant', 'лига легенд']:
+                    run(event.close(bot))
+                    continue
                 if type(url) is dict:
                     url: str = url[event.tournament.subcategory.name]
-                if url.startswith('https://escorenews.com/ru'):
-                    data = escorenews.parse(url)
-                else:
-                    data = sports_ru.parse(url.format(
-                        day=event.start_time.day,
-                        month=event.start_time.month,
-                        year=event.start_time.year
-                    ))
+                data = sports_ru.parse(url.format(
+                    day=event.start_time.day,
+                    month=event.start_time.month,
+                    year=event.start_time.year
+                ))
                 for tournamentName, tournamentGames in data.items():
                     moderate_sports_game(tournamentName, tournamentGames, event)
             break
-            # """
     except IndexError:
         pass
     except AttributeError:
@@ -297,26 +296,22 @@ def check_old_events() -> None:
                                   models.Q(start_time__lte=(timezone.now() + datetime.timedelta(hours=4))),
                                   ended=False)
     for event in events:
-        try:
-            if event.sports_ru_link.startswith('https://escorenews.com/ru'):
-                data = escorenews.parse_event(event.sports_ru_link)
-            else:
-                data = sports_ru.parse_event(event.sports_ru_link)
-        except AttributeError:
-            print("Ссылка говно", event)
-            # event.delete()
+        if event.sports_ru_link.startswith('https://escorenews.com/ru'):
+            run(event.close(bot=bot))
             continue
+        else:
+            data = sports_ru.parse_event(event.sports_ru_link)
         data.update(url=event.sports_ru_link)
         try:
             if data['status'].lower().split()[0].startswith('заверш') or data['status'].lower() == 'матч окончен':
                 matchboard = data['matchboard']
                 if matchboard[0] == matchboard[1]:
-                    win_team = event.teams.get(team__names__name='Ничья')
+                    win_team = list(set(event.teams.filter(team__names__name='Ничья')))
                 elif matchboard[0] > matchboard[1]:
-                    win_team = event.teams.get(team__names__name=data['teams'][0])
+                    win_team = list(set(event.teams.filter(team__names__name=data['teams'][0])))
                 else:
-                    win_team = event.teams.get(team__names__name=data['teams'][1])
-                run(event.win(win_team, bot=bot))
+                    win_team = list(set(event.teams.filter(team__names__name=data['teams'][1])))
+                run(event.win(win_team[0], bot=bot))
             else:
                 print(data)
         except IndexError:
