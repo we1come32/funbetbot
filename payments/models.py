@@ -31,6 +31,7 @@ class Cheque(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, verbose_name='ID')
     user = models.ForeignKey(TGUser, on_delete=models.CASCADE, verbose_name='Покупатель')
     status = models.BooleanField(default=False, verbose_name='Оплата')
+    canceled = models.BooleanField(default=False, verbose_name='Отменён')
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='cheques', verbose_name='Продукт')
     bill_id = models.CharField(max_length=10, verbose_name='BillID')
     url = models.URLField(verbose_name="Ссылка на оплату", null=True, default='')
@@ -72,6 +73,8 @@ class Cheque(models.Model):
     def check(self, user: TGUser):
         if self.status:
             return True
+        if self.canceled:
+            return False
         bill: Bill = p2p.check(bill_id=self.bill_id)
         if bill.status == "PAID":
             self.status = True
@@ -103,3 +106,11 @@ class Cheque(models.Model):
         for cheque in cls.objects.filter(user=user):
             bill_statuses.append(cheque.check())
         return bill_statuses
+
+    def cancel(self):
+        if self.check():
+            return False
+        p2p.reject(bill_id=self.bill_id)
+        self.canceled = True
+        self.save()
+        return True
