@@ -98,7 +98,7 @@ class Cheque(models.Model):
 
     @classmethod
     @dispatch(TGUser)
-    def check(cls, user: TGUser, cheque_ids: list[int]) -> list[bool]:
+    def check(cls, user: TGUser) -> list[bool]:
         bill_statuses: list[bool] = []
         for cheque in cls.objects.filter(user=user):
             bill_statuses.append(cheque.check())
