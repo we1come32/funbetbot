@@ -323,6 +323,9 @@ def check_old_events() -> None:
                     win_team = list(set(event.teams.filter(team__names__name=data['teams'][1])))
                 loguru.logger.info("Winning team was found. Searching winning bets")
                 run(event.win(win_team[0], bot=bot))
+            if data['status'] == 'error':
+                loguru.logger.info(f"URL doesnt exist. URL: {event.sports_ru_link!r}")
+                run(event.close(bot=bot))
             else:
                 loguru.logger.info("Event not ended. Skip")
                 loguru.logger.debug(str(data))
@@ -347,7 +350,7 @@ def main():
             check_new_events()
             loguru.logger.debug(
                 f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
-            check_event_links()
+            # check_event_links()
             loguru.logger.debug(f"Закончился поиск связей событий с событиями на sports. "
                                 f"Приступаю к обновлению коэффициентов")
             # check_values_events()

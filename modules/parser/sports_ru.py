@@ -101,6 +101,10 @@ def parse_event(url: str) -> dict:
     html = response.text
     base_url = url.split('.ru')[0] + '.ru'
     soup = BeautifulSoup(html, features='html.parser')
+    header = soup.find('head').find('title')
+    if header.text == 'Страница не найдена':
+        loguru.logger.debug(f"Page not found. Code: {response.status_code}")
+        return {'status': 'error', 'error_code': 404}
     event = soup.find('div', class_='match-summary')
     if event is not None:
         teams = [

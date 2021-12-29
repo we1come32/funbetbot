@@ -28,6 +28,8 @@ async def Debugger(func):
     while True:
         try:
             return await func
+        except aiogram.utils.exceptions.BotBlocked:
+            return False
         except RetryAfter as e:
             timer = int(str(e).split('.')[1].split()[2])
             await asyncio.sleep(timer)

@@ -1,4 +1,5 @@
 /venv
+/logs
 config.py
 test.py
 geckodriver.log
