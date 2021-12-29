@@ -156,12 +156,13 @@ class Event(models.Model):
 
     async def close(self, bot: aiogram.Bot) -> bool:
         if self.ended:
-            self.delete()
             return False
         for _team in self.teams.all():
             bets: list[Bet] = _team.bets.filter(is_active=True, payed=False)
             for bet in bets:
                 await bet.close(bot)
+        self.ended = True
+        self.save()
         return True
 
     async def win(self, team: "TeamEvent", bot: aiogram.Bot) -> bool:

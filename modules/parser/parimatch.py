@@ -205,6 +205,7 @@ class PariMatchLoader(ABCParseLoader):
                 href = href[:-5]
             # Сохраняем названия категорий с их ссылками
             data[name] = href
+            logger.debug(f"Найдена категория {name!r}, href='{href!r}'")
         # Принтим словарь названий категорий и его ссылок
         logger.info(f"Найдено {len(data.keys())} видов спорта, среди них: {', '.join(str(key) for key in data.keys())}")
         self._browser_locked = False

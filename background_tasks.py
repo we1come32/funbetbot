@@ -64,7 +64,7 @@ def message_send(**kwargs) -> Message:
             time.sleep(timer)
 
 
-loguru.logger.add('File.log')
+loguru.logger.add('logs/{time:%Y/%m/%d}.log', rotation='2 MB')
 allow_categories = set_cache_keys({
     'киберспорт': {
         'counter-strike': 'https://cyber.sports.ru/cs/match/{year}-{month:0>2}-{day:0>2}/',
@@ -292,18 +292,28 @@ def check_event_links() -> None:
 
 def check_old_events() -> None:
     global bot
+    loguru.logger.info("Run task \"Checking old events\"")
     events = Event.objects.filter(~models.Q(sports_ru_link='') &
                                   models.Q(start_time__lte=(timezone.now() + datetime.timedelta(hours=4))),
                                   ended=False)
     for event in events:
+        loguru.logger.info(f"Checking event \"event#{event.pk}\"")
         if event.sports_ru_link.startswith('https://escorenews.com/ru'):
+            loguru.logger.info("Event from 'escorenews.com', closing this event")
             run(event.close(bot=bot))
+            loguru.logger.info("Event was closed")
             continue
         else:
+            loguru.logger.info("Start parsing data from linked URL.")
+            loguru.logger.debug(f"Start parsing URL: {event.sports_ru_link!r}")
             data = sports_ru.parse_event(event.sports_ru_link)
+            loguru.logger.info("Parsing was ended")
+            loguru.logger.debug(f"Data: {data}")
         data.update(url=event.sports_ru_link)
+        loguru.logger.info("Check event status")
         try:
             if data['status'].lower().split()[0].startswith('заверш') or data['status'].lower() == 'матч окончен':
+                loguru.logger.info("Event was ended. Searching winning team...")
                 matchboard = data['matchboard']
                 if matchboard[0] == matchboard[1]:
                     win_team = list(set(event.teams.filter(team__names__name='Ничья')))
@@ -311,10 +321,13 @@ def check_old_events() -> None:
                     win_team = list(set(event.teams.filter(team__names__name=data['teams'][0])))
                 else:
                     win_team = list(set(event.teams.filter(team__names__name=data['teams'][1])))
+                loguru.logger.info("Winning team was found. Searching winning bets")
                 run(event.win(win_team[0], bot=bot))
             else:
-                print(data)
+                loguru.logger.info("Event not ended. Skip")
+                loguru.logger.debug(str(data))
         except IndexError:
+            loguru.logger.info("Event status not found")
             continue
 
 

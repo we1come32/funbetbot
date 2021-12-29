@@ -92,23 +92,19 @@ async def menu(msg: Message, user: models.TGUser, **kwargs):
 @dp.message_handler(commands=['balance', 'баланс'])
 @RegisterMessageUser
 async def balance(msg: Message = None, user: models.TGUser = None, message_id: int = None, **kwargs):
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')],
-                         [InlineKeyboardButton('➕ Добавить валюту', callback_data='commands.player.balance.add')]])
-    await bot.send_message(user.id, f"Ваш баланс: 💴 {user.balance}", reply_markup=kb)
+    await bot.send_message(user.id, f"Ваш баланс: 💴 {user.balance}", reply_markup=menuKeyboard)
 
 
 @dp.message_handler(commands=['add_balance', 'добавить_баланс'])
 @RegisterMessageUser
 async def addBalance(msg: Message = None, user: models.TGUser = None, message_id: int = None, **kwargs):
-    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')]])
     if models.Bet.objects.filter(user=user, is_active=True, payed=False).count() == 0 and user.balance <= 500:
         user.balance = user.balance + 500
         user.save()
         message = "❕ Баланс пополнен на 💴 500\n"
     else:
         message = "⛔️ Условия пополнения не соблюдаются\n"
-    await bot.send_message(user.id, f"{message}Ваш баланс: 💴 {user.balance}", reply_markup=kb)
+    await bot.send_message(user.id, f"{message}Ваш баланс: 💴 {user.balance}", reply_markup=menuKeyboard)
 
 
 @dp.message_handler(commands=['rating', 'рейтинг'])
@@ -149,12 +145,7 @@ async def bets(msg: Message = None, user: models.TGUser = None, message_id: int 
         header = ""
         message = "Ставки от вашего имени отсутствуют.\nСделаем ставку?"
     try:
-        await bot.send_message(user.id, header + message, reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton('💴 Баланс', callback_data='commands.player.balance')],
-                [InlineKeyboardButton('💴 Сделать ставку', callback_data='commands.bet')],
-            ]
-        ), parse_mode=types.ParseMode.HTML, )
+        await bot.send_message(user.id, header + message, reply_markup=menuKeyboard, parse_mode=types.ParseMode.HTML)
     except Exception as e:
         print(e)
 
