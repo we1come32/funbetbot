@@ -335,37 +335,51 @@ class Bet(models.Model):
         return True
 
     def get_info(self, active: bool = False) -> str:
-        team: str = self.team.team.get_name()
-        if team != 'Ничья':
-            team = f"победу команды {team}"
-        else:
-            team = 'ничью'
-        if active:
-            if not self.is_active or self.payed:
-                return ""
-        _header = f"Ставка#{self.pk}"
-        if self.is_active is False:
-            _header += " [Отменён пользователем]"
-        if self.payed:
-            if self.winner:
-                _header += " [Ставка выиграна] [Оплачено]"
+        if self.express is None:
+            team: str = self.team.team.get_name()
+            if team != 'Ничья':
+                team = f"победу команды {team}"
             else:
-                _header += " [Ставка проиграна]"
-        return f"<code>{_header}\n" \
-               f"- Вид спорта: <i><u>{self.team.event.tournament.subcategory.category.name.upper()}</u></i>\n" + \
-               f"- Подкатегория: <i><u>{self.team.event.tournament.subcategory.name.upper()}</u></i>\n" + \
-               f"- Турнир: <i><u>{self.team.event.tournament.name.upper()}</u></i>\n" + \
-               f"- Событие: <i>{self.team.event.name!r}</i>\n" + \
-               f"- Исход на <i>{team}</i> с коэфициентом {self.value}\n" + \
-               f"- Сумма ставки: 💴 {self.money}\n" + \
-               (f"- Выигрыш: 💴 <b>{int(self.money * self.value)}</b>\n" if self.winner else "") + \
-               (f"- Выиграно рейтинга: ⚜️<b>{int(self.money * self.value - self.money)}</b>\n" if self.winner else "") + \
-               (f"- Проиграно рейтинга: ⚜️ <b>{int(self.money / self.value)}</b>\n"
-                if not self.winner and self.payed
-                else "") + \
-               (f"- Возможный выигрыш: 💴 {int(self.money * self.value)}\n" if not self.payed and self.is_active else "") + \
-               f"- Дата события: {self.team.event.start_time} UTC\n" + \
-               f"- Дата создания ставки: {self.created_date} UTC</code>\n\n"
+                team = 'ничью'
+            if active:
+                if not self.is_active or self.payed:
+                    return ""
+            _header = f"Ставка#{self.pk}"
+            if self.is_active is False:
+                _header += " [Отменён пользователем]"
+            if self.payed:
+                if self.winner:
+                    _header += " [Ставка выиграна] [Оплачено]"
+                else:
+                    _header += " [Ставка проиграна]"
+            return f"<code>{_header}\n" \
+                   f"- Вид спорта: <i><u>{self.team.event.tournament.subcategory.category.name.upper()}</u></i>\n" + \
+                   f"- Подкатегория: <i><u>{self.team.event.tournament.subcategory.name.upper()}</u></i>\n" + \
+                   f"- Турнир: <i><u>{self.team.event.tournament.name.upper()}</u></i>\n" + \
+                   f"- Событие: <i>{self.team.event.name!r}</i>\n" + \
+                   f"- Исход на <i>{team}</i> с коэфициентом {self.value}\n" + \
+                   f"- Сумма ставки: 💴 {self.money}\n" + \
+                   (f"- Выигрыш: 💴 <b>{int(self.money * self.value)}</b>\n" if self.winner else "") + \
+                   (f"- Выиграно рейтинга: ⚜️<b>{int(self.money * self.value - self.money)}</b>\n" if self.winner else "") + \
+                   (f"- Проиграно рейтинга: ⚜️ <b>{int(self.money / self.value)}</b>\n"
+                    if not self.winner and self.payed
+                    else "") + \
+                   (f"- Возможный выигрыш: 💴 {int(self.money * self.value)}\n" if not self.payed and self.is_active else "") + \
+                   f"- Дата события: {self.team.event.start_time} UTC\n" + \
+                   f"- Дата создания ставки: {self.created_date} UTC</code>\n\n"
+        else:
+            team: str = self.team.team.get_name()
+            if team != 'Ничья':
+                team = f"победу команды {team}"
+            else:
+                team = 'ничью'
+            return f"- Событие: <i><u>{self.team.event.tournament.subcategory.category.name.upper()}/" \
+                   f"{self.team.event.tournament.subcategory.name.upper()}/" \
+                   f"{self.team.event.tournament.name.upper()}/{self.team.event.name!r}</u></i>\n" + \
+                   f"- Исход на <i>{team}</i> с коэфициентом {self.value}\n" + \
+                   f"- Сумма ставки: 💴 {self.money}\n" + \
+                   f"- Дата события: {self.team.event.start_time} UTC\n" + \
+                   f"- Дата создания ставки: {self.created_date} UTC\n\n"
 
 
 class TeamModeration(models.Model):
@@ -383,9 +397,55 @@ class Express(models.Model):
     class Meta:
         verbose_name_plural = 'Экспресс'
 
-    payed = models.BooleanField(default=False)
+    payed = models.BooleanField(default=False, verbose_name='Оплачено')
+    canceled = models.BooleanField(default=False, verbose_name='Отменено')
+    winner = models.BooleanField(default=False, verbose_name='Выиграно')
+    money = models.IntegerField(verbose_name='Сумма', default=100)
     created_date = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
     user = models.ForeignKey(TGUser, on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='expresses')
 
     objects = managers.DefaultManager()
+
+    def get_info(self, active: bool = False) -> str:
+        expresses = ""
+        k = 1
+        if active and not self.payed and not self.canceled:
+            for bet in self.bets:
+                k *= bet.value
+                _ = bet.get_info()
+                if _ != '':
+                    _ += "\n"
+                expresses += _
+        status = ""
+        if self.payed:
+            status += "[Выиграно] [Оплачено] " if self.winner else "[Проиграно] "
+        if self.canceled:
+            status += "[Отменено] "
+        return f"<code>Экспресс №{self.pk} {status}" \
+               f"- Ставка: {self.money}\n" + \
+               f"- Выигрыш: {int(self.money*k)}" if self.payed else "" + \
+               f"- Ставки:\n{expresses}</code>"
+
+    def check_status(self):
+        if self.canceled or self.payed:
+            return False
+        flag = True
+        ended = True
+        k = 1
+        for bet in self.bets:
+            k *= bet.value
+            if bet.payed and not bet.winner:
+                flag = False
+            if not bet.payed:
+                ended = False
+        if ended:
+            if flag:
+                message = f"Ваш экспресс №{self.pk} выигран\n" \
+                          f"Ваш выигрыш: {int(self.money*k)}\n" \
+                          f"Ваш рейтинг увеличен на {int(self.money*k)-self.money}"
+            else:
+                message = f"Ваш экспресс №{self.pk} проигран(\n" \
+                          f"Вы проиграли: {self.money}\n" \
+                          f"Ваш рейтинг уменьшен на {self.money}"
+        return False
