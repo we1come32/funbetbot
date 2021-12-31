@@ -258,6 +258,8 @@ class Bet(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="Активна ли ставка")
     payed = models.BooleanField(default=False, verbose_name="Оплачена ли ставка")
     created_date = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
+    express = models.ForeignKey("Express", on_delete=models.CASCADE, verbose_name='Экспресс', related_name='bets',
+                                null=True, default=None)
 
     objects = managers.DefaultManager()
 
@@ -376,3 +378,14 @@ class TeamModeration(models.Model):
 
     objects = managers.DefaultManager()
 
+
+class Express(models.Model):
+    class Meta:
+        verbose_name_plural = 'Экспресс'
+
+    payed = models.BooleanField(default=False)
+    created_date = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
+    user = models.ForeignKey(TGUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+                             related_name='expresses')
+
+    objects = managers.DefaultManager()
