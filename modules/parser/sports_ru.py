@@ -106,32 +106,35 @@ def parse_event(url: str) -> dict:
         loguru.logger.debug(f"Page not found. Code: {response.status_code}")
         return {'status': 'error', 'error_code': 404}
     event = soup.find('div', class_='match-summary')
-    if event is not None:
-        teams = [
-            _.find('span', class_='match-summary__team-name').text
-            for _ in event.find_all('div', class_='match-summary__team')
-        ]
-        stateObject = event.find('div', class_='match-summary__state')
-        stateStatus = stateObject.find('span', class_='match-summary__state-status').text
-        data = {
-            'status': stateStatus.capitalize(),
-            'teams': teams,
-        }
-        if stateStatus.lower().split()[0].startswith('заверш'):
-            data.update(matchboard=[int(_.text) for _ in stateObject.find_all('span', class_='matchboard__card-game')])
-    else:
-        event = soup.find('div', class_='two-commands')
-        teams = [
-            _.find('span', itemprop='name').text
-            for _ in event.find_all('div', class_='command')
-        ]
-        stateObject = event.find('div', class_='game-info')
-        stateStatus = stateObject.find('div', class_='js-match-status').text
-        data = {
-            'status': stateStatus.capitalize(),
-            'teams': teams,
-        }
-        if stateStatus.lower().split()[0].startswith('заверш'):
-            data.update(matchboard=list(map(int, stateObject.find('div', class_='js-match-score').text.split(" : "))))
-    loguru.logger.debug(f'Парсинг страницы {url!r} завершен. Возвращено: {data!r}')
-    return data
+    try:
+        if event is not None:
+            teams = [
+                _.find('span', class_='match-summary__team-name').text
+                for _ in event.find_all('div', class_='match-summary__team')
+            ]
+            stateObject = event.find('div', class_='match-summary__state')
+            stateStatus = stateObject.find('span', class_='match-summary__state-status').text
+            data = {
+                'status': stateStatus.capitalize(),
+                'teams': teams,
+            }
+            if stateStatus.lower().split()[0].startswith('заверш'):
+                data.update(matchboard=[int(_.text) for _ in stateObject.find_all('span', class_='matchboard__card-game')])
+        else:
+            event = soup.find('div', class_='two-commands')
+            teams = [
+                _.find('span', itemprop='name').text
+                for _ in event.find_all('div', class_='command')
+            ]
+            stateObject = event.find('div', class_='game-info')
+            stateStatus = stateObject.find('div', class_='js-match-status').text
+            data = {
+                'status': stateStatus.capitalize(),
+                'teams': teams,
+            }
+            if stateStatus.lower().split()[0].startswith('заверш'):
+                data.update(matchboard=list(map(int, stateObject.find('div', class_='js-match-score').text.split(" : "))))
+        loguru.logger.debug(f'Парсинг страницы {url!r} завершен. Возвращено: {data!r}')
+        return data
+    except BaseException:
+        return {'status': 'error', 'error_code': 404}

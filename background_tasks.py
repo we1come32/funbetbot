@@ -82,6 +82,7 @@ def run(func) -> Any:
     return False
 
 
+@loguru.logger.catch
 def check_new_events() -> None:
     global allow_categories, pm
     categories = pm.parse_categories_list()
@@ -151,6 +152,7 @@ def check_new_events() -> None:
                                                          event=eventModel, bet=teamBet)
 
 
+@loguru.logger.catch
 def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Event) -> None:
     for game in tournamentGames:
         if game['date'] == '—':
@@ -261,35 +263,30 @@ def moderate_sports_game(tournamentName: str, tournamentGames: list, event: Even
                 editEvent.event.save()
 
 
+@loguru.logger.catch
 def check_event_links() -> None:
     global allow_categories
-    # if True:
-    try:
-        while True:
-            Event.objects.filter(sports_ru_link='', start_time__lt=timezone.now()).delete()
-            events = Event.objects.filter(sports_ru_link='', start_time__gte=timezone.now()).order_by('start_time')
-            for event in events:
-                url: dict | str = allow_categories[event.tournament.subcategory.category.name]
-                if event.tournament.subcategory.name in ['valorant', 'лига легенд']:
-                    run(event.close(bot))
-                    continue
-                if type(url) is dict:
-                    url: str = url[event.tournament.subcategory.name]
-                data = sports_ru.parse(url.format(
-                    day=event.start_time.day,
-                    month=event.start_time.month,
-                    year=event.start_time.year
-                ))
-                for tournamentName, tournamentGames in data.items():
-                    moderate_sports_game(tournamentName, tournamentGames, event)
-            break
-    except IndexError:
-        pass
-    except AttributeError:
-        pass
-        # """
+    while True:
+        Event.objects.filter(sports_ru_link='', start_time__lt=timezone.now()).delete()
+        events = Event.objects.filter(sports_ru_link='', start_time__gte=timezone.now()).order_by('start_time')
+        for event in events:
+            url: dict | str = allow_categories[event.tournament.subcategory.category.name]
+            if event.tournament.subcategory.name in ['valorant', 'лига легенд']:
+                run(event.close(bot))
+                continue
+            if type(url) is dict:
+                url: str = url[event.tournament.subcategory.name]
+            data = sports_ru.parse(url.format(
+                day=event.start_time.day,
+                month=event.start_time.month,
+                year=event.start_time.year
+            ))
+            for tournamentName, tournamentGames in data.items():
+                moderate_sports_game(tournamentName, tournamentGames, event)
+        break
 
 
+@loguru.logger.catch
 def check_old_events() -> None:
     global bot
     loguru.logger.info("Run task \"Checking old events\"")
@@ -323,7 +320,7 @@ def check_old_events() -> None:
                     win_team = list(set(event.teams.filter(team__names__name=data['teams'][1])))
                 loguru.logger.info("Winning team was found. Searching winning bets")
                 run(event.win(win_team[0], bot=bot))
-            if data['status'] == 'error':
+            elif data['status'] == 'error':
                 loguru.logger.info(f"URL doesnt exist. URL: {event.sports_ru_link!r}")
                 run(event.close(bot=bot))
             else:
@@ -334,6 +331,7 @@ def check_old_events() -> None:
             continue
 
 
+@loguru.logger.catch
 def check_values_events() -> None:
     events = Event.objects.filter(~models.Q(sports_ru_link=''),
                                   start_time__gte=timezone.now())
@@ -350,7 +348,7 @@ def main():
             check_new_events()
             loguru.logger.debug(
                 f"Поиск новых событий завершен. Приступаю к поиску связей событий с событиями на sports")
-            # check_event_links()
+            check_event_links()
             loguru.logger.debug(f"Закончился поиск связей событий с событиями на sports. "
                                 f"Приступаю к обновлению коэффициентов")
             # check_values_events()
