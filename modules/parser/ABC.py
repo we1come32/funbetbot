@@ -137,7 +137,7 @@ class ABCParseLoader:
     def browser_is_ready(self) -> bool:
         """
         This method need to check browser ready status and check active page in browser
-        :return:
+        :return bool: browser ready status. If true, browser is ready, else not
         """
         if not self._browser.is_opened():
             logger.warning("Browser was crashed. Reopening browser page...")
