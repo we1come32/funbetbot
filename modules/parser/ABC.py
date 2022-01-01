@@ -105,7 +105,7 @@ class ABCParseLoader:
     @abc.abstractmethod
     def parse_pari(self, url: str) -> dict:
         """
-        Меод позволит спарсить коэффициенты на ставки у букмекера
+        Метод позволит спарсить коэффициенты на ставки у букмекера
         :param url: str, ссылка на событие у букмекера
         :return: dict, информация о ставках в данный момент времени
         """
@@ -133,6 +133,17 @@ class ABCParseLoader:
         self._c -= 1
         if self._c == 0:
             self._browser.close()
+
+    def browser_is_ready(self) -> bool:
+        """
+        This method need to check browser ready status and check active page in browser
+        :return:
+        """
+        if not self._browser.is_opened():
+            logger.warning("Browser was crashed. Reopening browser page...")
+            self._last_update_work_time = time.time()
+            self._browser = Browser()
+        return not self._browser_locked and self._browser.is_opened()
 
     @property
     def browser(self):

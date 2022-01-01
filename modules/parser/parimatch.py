@@ -26,7 +26,7 @@ class PariMatchLoader(ABCParseLoader):
         :return: dict, информация о ставках в данный момент времени
         """
         # Ожидание окончания блокировки браузера
-        while self._browser_locked:
+        while not self.browser_is_ready():
             continue
         # Ставим блокировку
         self._browser_locked = True
@@ -102,7 +102,7 @@ class PariMatchLoader(ABCParseLoader):
                 ]
                 tournament.append(parimatchGameInfo)
 
-        while self._browser_locked:
+        while not self.browser_is_ready():
             time.sleep(0.5)
         self._browser_locked = True
         self._browser.get(url)
@@ -180,7 +180,7 @@ class PariMatchLoader(ABCParseLoader):
           турниров по этому виду спорта
         """
 
-        while self._browser_locked:
+        while not self.browser_is_ready():
             time.sleep(0.5)
         self._browser_locked = True
         # Загрузка главной страницы
