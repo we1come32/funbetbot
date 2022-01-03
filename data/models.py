@@ -277,6 +277,8 @@ class Bet(models.Model):
     objects = managers.DefaultManager()
 
     async def close(self, bot: aiogram.Bot):
+        if not self.express:
+            return False
         if not self.is_active:
             return False
         self.user.balance = self.user.balance + self.money
@@ -303,10 +305,12 @@ class Bet(models.Model):
             return False
         self.winner = True
         self.payed = True
+        self.save()
+        if not self.express:
+            return False
         self.user.rating = self.user.rating + int(self.value * self.money - self.money)
         self.user.balance = self.user.balance + int(self.value * self.money)
         self.user.save()
-        self.save()
         settings: Settings = self.user.get_settings()
         if settings.notification:
             await Debugger(bot.send_message(
@@ -328,9 +332,11 @@ class Bet(models.Model):
         if not self.is_active:
             return False
         self.payed = True
+        self.save()
+        if not self.express:
+            return False
         self.user.rating = self.user.rating - int(self.money / self.value)
         self.user.save()
-        self.save()
         settings: Settings = self.user.get_settings()
         if settings.notification:
             await Debugger(bot.send_message(
@@ -386,13 +392,18 @@ class Bet(models.Model):
                 team = f"победу команды {team}"
             else:
                 team = 'ничью'
-            return f"- Событие: <i><u>{self.team.event.tournament.subcategory.category.name.upper()}/" \
+            _header = ''
+            if self.payed:
+                if self.winner:
+                    _header = " [Ставка выиграна] [Оплачено]"
+                else:
+                    _header = " [Ставка проиграна]"
+            return f"{_header}\n- Событие: <i><u>{self.team.event.tournament.subcategory.category.name.upper()}/" \
                    f"{self.team.event.tournament.subcategory.name.upper()}/" \
                    f"{self.team.event.tournament.name.upper()}/{self.team.event.name!r}</u></i>\n" + \
                    f"- Исход на <i>{team}</i> с коэфициентом {self.value}\n" + \
                    f"- Сумма ставки: 💴 {self.money}\n" + \
-                   f"- Дата события: {self.team.event.start_time} UTC\n" + \
-                   f"- Дата создания ставки: {self.created_date} UTC\n\n"
+                   f"- Дата события: {self.team.event.start_time} UTC\n"
 
 
 class TeamModeration(models.Model):
@@ -440,7 +451,7 @@ class Express(models.Model):
                f"- Выигрыш: {int(self.money*k)}" if self.payed else "" + \
                f"- Ставки:\n{expresses}</code>"
 
-    def check_status(self):
+    def check_status(self, bot: aiogram.Bot):
         if self.canceled or self.payed:
             return False
         flag = True
@@ -461,4 +472,15 @@ class Express(models.Model):
                 message = f"Ваш экспресс №{self.pk} проигран(\n" \
                           f"Вы проиграли: {self.money}\n" \
                           f"Ваш рейтинг уменьшен на {self.money}"
+
+            await Debugger(bot.send_message(
+                chat_id=self.user.id,
+                text=message,
+                parse_mode=types.ParseMode.HTML,
+            ))
+            await Debugger(bot.send_message(
+                chat_id=self.user.id,
+                text="Сделаем ещё ставку?",
+                reply_markup=menuKeyboard
+            ))
         return False
