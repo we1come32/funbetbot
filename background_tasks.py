@@ -86,6 +86,8 @@ def run(func) -> Any:
 def check_new_events() -> None:
     global allow_categories, pm
     categories = pm.parse_categories_list()
+    if not categories:
+        return None
     for categoryName, categoryHref in categories.items():
         if categoryName.lower() in allow_categories['keys']:
             parse_link: str | None = None

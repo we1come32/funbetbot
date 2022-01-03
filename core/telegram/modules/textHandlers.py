@@ -159,11 +159,12 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
     tournament = kwargs.get('tournament', None)
     event = kwargs.get('event', None)
     team = kwargs.get('team', None)
+    money = kwargs.get('money', None)
     if category is None:
         text = "❗️ Выберите категорию событий"
         categories = models.Category.objects.all()
         for tmpCategory in categories:
-            if tmpCategory.subcategories.filter(tournaments__events__ended=False).count():
+            if tmpCategory.count_events():
                 kb.row(InlineKeyboardButton(tmpCategory.name.upper(),
                                             callback_data=f'commands.bet.{tmpCategory.pk}'))
         kb.row(InlineKeyboardButton("◀️ Назад в меню",
@@ -172,7 +173,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         text = "❗️Выберите подкатегорию событий"
         subcategories = models.Category.objects.get(pk=category).subcategories.all()
         for tmpSubCategory in subcategories:
-            if tmpSubCategory.tournaments.filter(events__ended=False).count():
+            if tmpSubCategory.count_events():
                 kb.row(InlineKeyboardButton(tmpSubCategory.name.upper(),
                                             callback_data=f'commands.bet.{category}.{tmpSubCategory.pk}'))
         kb.row(InlineKeyboardButton("◀️ Назад",
@@ -182,7 +183,7 @@ async def get_bet(msg: Message, user: models.TGUser = None, **kwargs):
         subcategories = list(models.SubCategory.objects.get(pk=subcategory).tournaments.all())
         subcategories.sort(key=lambda tmp: models.Bet.objects.filter(team__event__tournament=tmp).count(), reverse=True)
         for tmpSubCategory in subcategories:
-            if tmpSubCategory.events.filter(~models.models.Q(sports_ru_link=''), ended=False).count():
+            if tmpSubCategory.count_events():
                 kb.row(InlineKeyboardButton(tmpSubCategory.name.upper(),
                                             callback_data=f'commands.bet.{category}.{subcategory}.{tmpSubCategory.pk}'))
         kb.row(InlineKeyboardButton("◀️ Назад",

@@ -3,6 +3,7 @@ import datetime
 from typing import Union
 
 import aiogram
+import loguru
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.exceptions import RetryAfter
@@ -85,6 +86,10 @@ class Category(models.Model):
     def __str__(self):
         return f"{self.name.capitalize()}"
 
+    def count_events(self):
+        return Event.objects.filter(~models.Q(sports_ru_link=''), start_time__gte=timezone.now(),
+                                    tournament__subcategory__category=self).count()
+
 
 class SubCategory(models.Model):
     class Meta:
@@ -99,6 +104,10 @@ class SubCategory(models.Model):
 
     def __str__(self):
         return f"{self.category} -> {self.name.capitalize()}"
+
+    def count_events(self):
+        return Event.objects.filter(~models.Q(sports_ru_link=''), start_time__gte=timezone.now(),
+                                    tournament__subcategory=self).count()
 
 
 class Tournament(models.Model):
@@ -116,6 +125,10 @@ class Tournament(models.Model):
 
     def __str__(self):
         return f"{self.subcategory} -> {self.name}"
+
+    def count_events(self):
+        return Event.objects.filter(~models.Q(sports_ru_link=''), start_time__gte=timezone.now(),
+                                    tournament=self).count()
 
 
 class Event(models.Model):
