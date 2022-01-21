@@ -1,6 +1,7 @@
 import asyncio
 import time
 
+from aiogram.types import Message
 from aiogram.utils.exceptions import BotBlocked
 from aiogram.utils.exceptions import RetryAfter
 

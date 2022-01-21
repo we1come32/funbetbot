@@ -6,13 +6,14 @@ import loguru
 import pytz
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
-from aiogram.utils.exceptions import RetryAfter
+from aiogram.utils.exceptions import RetryAfter, BotBlocked
 
 import config
 import utils.setup_django
 from modules.parser.parimatch import PariMatchLoader
 from data.models import *
 from modules.parser import sports_ru
+from utils import message_send
 
 new_line = "\n"
 
@@ -49,19 +50,6 @@ def set_cache_keys(data: dict) -> dict:
     for key, item in data.items():
         data[key] = set_cache_keys(item)
     return data
-
-
-def message_send(**kwargs) -> Message:
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = asyncio.get_event_loop()
-    while True:
-        try:
-            return loop.run_until_complete(bot.send_message(**kwargs))
-        except RetryAfter as e:
-            timer = int(str(e).split('.')[1].split()[2])
-            time.sleep(timer)
 
 
 loguru.logger.add('logs/{time:%Y/%m/%d}.log', rotation='2 MB')
