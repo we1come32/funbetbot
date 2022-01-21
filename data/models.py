@@ -36,11 +36,87 @@ async def Debugger(func):
             await asyncio.sleep(timer)
 
 
+class DefaultUser(models.Model):
+    class Meta:
+        verbose_name_plural = "Игровой аккаунт"
+    name = models.CharField(max_length=255, default='', verbose_name="Имя", blank=True)
+    status = models.BooleanField(default=True, verbose_name="Статус активности аккаунта")
+    admin = models.BooleanField(default=False, verbose_name="Администратор")
+    balance = models.BigIntegerField(default=1000, verbose_name="Баланс")
+    rating = models.BigIntegerField(default=1000, verbose_name="Рейтинг")
+    language = models.CharField(max_length=2, default='en', verbose_name="Языковой пакет")
+
+    class NoAccount(Exception):
+        pass
+
+    def add_rating(self, value: int) -> bool | tuple:
+        if type(value) is float:
+            value = int(value)
+        if not(type(value) is int):
+            return False
+        if value < 0:
+            value = abs(value)
+        if value == 0:
+            return False
+        self.rating += value
+        self.save()
+        # self.notify(f"Ваш рейтинг увеличился на ⚜️ {value}.")
+        return True, value
+
+    def subtract_rating(self, value: int) -> bool | tuple:
+        if type(value) is float:
+            value = int(value)
+        if not (type(value) is int):
+            return False
+        if value > self.rating:
+            value = self.rating
+        if value < 0:
+            value = abs(value)
+        if value == 0:
+            return False
+        self.rating -= value
+        self.save()
+        # self.notify(f"Ваш рейтинг уменьшился на ⚜️ {value}.")
+        return True, value
+
+    def add_money(self, value: int) -> bool | tuple:
+        if type(value) is float:
+            value = int(value)
+        if not (type(value) is int):
+            return False
+        if value < 0:
+            value = abs(value)
+        if value == 0:
+            return False
+        self.balance -= value
+        self.save()
+        # self.notify(f"Ваш баланс увеличился на 💴 {value}.")
+        return True, value
+
+    def subtract_money(self, value: int) -> bool | tuple:
+        if type(value) is float:
+            value = int(value)
+        if not (type(value) is int):
+            return False
+        if value > self.balance:
+            value = self.balance
+        if value < 0:
+            value = abs(value)
+        if value == 0:
+            return False
+        self.balance -= value
+        self.save()
+        # self.notify(f"Ваш баланс уменьшился на 💴 {value}.")
+        return True, value
+
+
 class TGUser(models.Model):
     class Meta:
         verbose_name_plural = "Пользователи Telegram"
 
     id = models.IntegerField(primary_key=True, unique=True, verbose_name="ID")
+    user = models.ForeignKey(DefaultUser, on_delete=models.CASCADE, verbose_name="Аккаунт Django",
+                             related_name='telegrams', null=True, default=None)
     name = models.CharField(max_length=255, default='', verbose_name="Имя Telegram", blank=True)
     status = models.BooleanField(default=True, verbose_name="Статус активности аккаунта")
     admin = models.BooleanField(default=False, verbose_name="Администратор")
@@ -53,13 +129,16 @@ class TGUser(models.Model):
     def get_settings(self):
         try:
             return self.settings
-        except:
+        except :
             return Settings.objects.create(user=self)
 
     def __str__(self):
         if self.name:
             return self.name
         return f"user{self.id}"
+
+    def synchronize(self):
+        pass
 
 
 class Settings(models.Model):
@@ -451,7 +530,7 @@ class Express(models.Model):
                f"- Выигрыш: {int(self.money*k)}" if self.payed else "" + \
                f"- Ставки:\n{expresses}</code>"
 
-    def check_status(self, bot: aiogram.Bot):
+    async def check_status(self, bot: aiogram.Bot):
         if self.canceled or self.payed:
             return False
         flag = True
