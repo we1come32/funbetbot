@@ -5,6 +5,7 @@ from aiogram.types import Message
 from aiogram.utils.exceptions import BotBlocked
 from aiogram.utils.exceptions import RetryAfter
 
+from core.telegram import bot
 from . import cache
 from . import types
 
