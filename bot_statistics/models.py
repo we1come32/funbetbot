@@ -66,6 +66,13 @@ class TGProfileStatistic(models.Model):
                     interesting_events.append(event)
         return interesting_events
 
+    @classmethod
+    def get_or_create(cls, *args, **kwargs):
+        obj = cls.objects.get_or_create(*args, **kwargs)
+        obj.last_activity = timezone.now()
+        obj.save()
+        return obj
+
 
 class Activity(models.Model):
     date = models.DateField(default=timezone.now, verbose_name='Дата', unique=True)
@@ -83,7 +90,10 @@ class Activity(models.Model):
             InlineKeyboardButton(text='💴 Баланс', callback_data='commands.player.balance'),
             InlineKeyboardButton(text='🔥 Рейтинг', callback_data='commands.rating'),
         ]])
-        users: QuerySet[TGProfileStatistic] = TGProfileStatistic.objects.filter(last_activity__lte=timezone.now() - timedelta(days=13, hours=20))
+        users: QuerySet[TGProfileStatistic] = TGProfileStatistic.objects.filter(
+            last_activity__lte=timezone.now() - timedelta(days=7, hours=20),
+            activity=True
+        )
         for user in users:
             message_send(
                 chat_id=user.user.user_id,
