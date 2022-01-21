@@ -1,9 +1,9 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from aiogram import types
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from django.db import models
-from django.db.models import QuerySet, Count
+from django.db.models import QuerySet
 from django.utils import timezone
 
 from data.models import TGUser, Bet, Category, Event
